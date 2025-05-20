@@ -9,4 +9,6 @@ dialect: 'mysql'
 module.exports = {
 Sequelize: Sequelize,
 sequelize: sequelize
+
+
 }
