@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom'; // ✅ IMPORTA O HOOK
 import '../styles/Home.css';
 import ChamadoModal from '../components/ChamadoModal';
-
+import Sidebar from '../components/Sidebar';
+import ChatBox from '../components/ChatBox';
+import '../styles/Chatbox.css'
 function Home() {
-  const navigate = useNavigate(); // ✅ DEFINE O navigate
+  
   const [modalAberta, setModalAberta] = useState(false);
 
   const handleAbrirChamado = () => {
@@ -17,15 +18,8 @@ function Home() {
 
   return (
     <div className="home-container">
-      <aside className="sidebar">
-        <h2 className="logo">Workflow Fatec</h2>
-        <nav className="menu">
-          <button className="menu-btn" onClick={() => navigate('/Home')}>Início</button>
-          <button className="menu-btn" onClick={() => navigate('/Chamado')}>Meus Chamados</button>
-          <button className="menu-btn">Mensagem</button>
-          <button className="menu-btn sair-btn" onClick={() => navigate('/')}>Sair</button>
-        </nav>
-      </aside>
+      <Sidebar/>
+      <ChatBox/>
 
       <main className="home-content">
         <h1>Bem-vindo!</h1>

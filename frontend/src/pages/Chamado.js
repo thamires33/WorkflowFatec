@@ -1,6 +1,14 @@
+import React from 'react';
 import Sidebar from '../components/Sidebar';
+import '../styles/Sidebar.css'
+import '../styles/Chamado.css';
+import ChatBox from '../components/ChatBox';
+import '../styles/Chatbox.css'
+
 
 function Chamado() {
+
+
   const chamado = [
     { protocolo: 1001, data: '20/04/2024', hora: '09:15', tipo: 'Urgência de Diploma' },
     { protocolo: 1002, data: '20/04/2024', hora: '10:30', tipo: 'Atestado Médico' },
@@ -8,10 +16,11 @@ function Chamado() {
   ];
 
   return (
-    <div className="dashboard">
+    <div className="home-container">
       <Sidebar />
+      <ChatBox/>
       <div className="content">
-        <h2>Meus Chamado</h2>
+        <h2>Meus Chamados</h2>
         <table>
           <thead>
             <tr>
