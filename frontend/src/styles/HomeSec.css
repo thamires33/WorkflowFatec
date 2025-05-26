@@ -1,0 +1,72 @@
+.home-sec-container {
+  padding: 2rem;
+  font-family: Arial, sans-serif;
+}
+
+h1 {
+  margin-bottom: 1.5rem;
+}
+
+.chamados-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.chamados-table th,
+.chamados-table td {
+  border: 1px solid #ddd;
+  padding: 12px;
+  text-align: center;
+}
+
+.chamados-table th {
+  background-color: #28418a;
+}
+
+.prioridade,
+.status {
+  padding: 5px 10px;
+  border-radius: 12px;
+  font-weight: bold;
+  color: white;
+  display: inline-block;
+}
+
+/* Prioridade */
+.prioridade.alta {
+  background-color: #f44336;
+}
+
+.prioridade.media {
+  background-color: #ffeb3b;
+  color: #000;
+}
+
+.prioridade.baixa {
+  background-color: #4caf50;
+}
+
+/* Status */
+.status.aberto {
+  background-color: #90caf9;
+  color: #000;
+}
+
+.status.em-analise {
+  background-color: #ff9800;
+}
+
+.status.fechado {
+  background-color: #9e9e9e;
+}
+.home-sec-wrapper {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Garantir que o conteúdo principal ocupe o restante do espaço */
+.home-sec-container {
+  flex: 1;
+  padding: 2rem;
+  background-color: #ffffff;
+}
