@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Sidebar from '../components/Sidebar';
 import ChatSec from '../components/ChatSec';
 import ChatToggleButton from '../components/ChatToggleButton';
@@ -9,12 +9,15 @@ function HomeSec() {
 
   const toggleChat = () => setShowChat(!showChat);
 
-  const chamados = [
-    { protocolo: 1001, data: '20/04/2024', prioridade: 'Alta', tipo: 'Urgência de Diploma', status: 'Aberto' },
-    { protocolo: 1002, data: '20/04/2024', prioridade: 'Média', tipo: 'Atestado Médico', status: 'Em análise' },
-    { protocolo: 1003, data: '20/04/2024', prioridade: 'Baixa', tipo: 'Histórico Escolar', status: 'Fechado' },
-    { protocolo: 1004, data: '20/04/2024', prioridade: 'Alta', tipo: 'Documentos Acadêmicos', status: 'Aberto' }
-  ];
+  const [chamados, setChamados] = useState([]);
+
+useEffect(() => {
+  fetch('http://localhost:3001/api/chamados') // ajuste a URL conforme seu back-end
+    .then(response => response.json())
+    .then(data => setChamados(data))
+    .catch(error => console.error('Erro ao buscar chamados:', error));
+}, []);
+
 
   const getStatusClass = (status) => {
     switch (status) {
@@ -34,6 +37,34 @@ function HomeSec() {
     }
   };
 
+  const visualizarChamado = (protocolo) => {
+  alert(`Chamado ${protocolo} selecionado para visualização`);
+};
+
+const encerrarChamado = async (protocolo) => {
+  const confirmacao = window.confirm(`Deseja encerrar o chamado ${protocolo}?`);
+  if (!confirmacao) return;
+
+  try {
+    const response = await fetch(`http://localhost:3001/api/chamado/${protocolo}/encerrar`, {
+      method: 'PUT',
+    });
+    if (response.ok) {
+      alert('Chamado encerrado com sucesso!');
+      setChamados((prev) =>
+        prev.map((c) =>
+          c.protocolo === protocolo ? { ...c, status: 'Fechado' } : c
+        )
+      );
+    } else {
+      alert('Erro ao encerrar o chamado');
+    }
+  } catch (error) {
+    console.error('Erro ao encerrar chamado:', error);
+  }
+};
+
+
   return (
     <div className="home-sec-wrapper">
       <Sidebar />
@@ -47,19 +78,25 @@ function HomeSec() {
               <th>Prioridade</th>
               <th>Tipo de Chamado</th>
               <th>Status</th>
+              <th>Ações</th>
+
             </tr>
           </thead>
           <tbody>
-            {chamados.map((ch) => (
-              <tr key={ch.protocolo}>
-                <td>{ch.protocolo}</td>
-                <td>{ch.data}</td>
-                <td><span className={getPrioridadeClass(ch.prioridade)}>{ch.prioridade}</span></td>
-                <td>{ch.tipo}</td>
-                <td><span className={getStatusClass(ch.status)}>{ch.status}</span></td>
-              </tr>
-            ))}
-          </tbody>
+  {chamados.map((ch) => (
+    <tr key={ch.protocolo}>
+      <td>{ch.protocolo}</td>
+      <td>{ch.data}</td>
+      <td><span className={getPrioridadeClass(ch.prioridade)}>{ch.prioridade}</span></td>
+      <td>{ch.tipo}</td>
+      <td><span className={getStatusClass(ch.status)}>{ch.status}</span></td>
+      <td>
+        <button onClick={() => visualizarChamado(ch.protocolo)}>Visualizar</button>
+        <button onClick={() => encerrarChamado(ch.protocolo)}>Encerrar</button>
+      </td>
+    </tr>
+  ))}
+</tbody>
         </table>
       </div>
 
