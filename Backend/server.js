@@ -1,13 +1,15 @@
 const express = require('express');
 const cors = require('cors');
+const chamadoRoutes = require('./routes/chamadoRoutes');
 
 const app = express();
-app.use(cors());
+
+app.use(cors()); // ✅ Libera o acesso externo (ex: do React)
 app.use(express.json());
 
-const chamadoRoutes = require('./src/routes/chamadoRoutes');
-app.use('/api/chamados', chamadoRoutes);
+app.use('/api/chamados', chamadoRoutes); // ✅ Prefixo das rotas
 
-app.listen(3000, () => {
-  console.log('Servidor rodando na porta 3000');
+const PORT = 3000;
+app.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT}`);
 });

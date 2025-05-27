@@ -10,6 +10,7 @@ const chamadoController = {
         aluno_ra: req.body.aluno_ra,
         tipo: req.body.tipo,
         descricao: req.body.descricao,
+        prioridade: req.body.prioridade || 'Média', // ✅ Adicionado
         status: req.body.status || 'Aberto',
         protocolo: protocolo
       };
@@ -53,15 +54,9 @@ const chamadoController = {
   atualizarStatus: async (req, res) => {
     try {
       const { status } = req.body;
-      //console.log("REQ BODY STATUS:", status); // 👈 debug
-      //console.log("REQ PARAMS ID:", req.params.id); 
-
       await Chamado.atualizarStatus(req.params.id, status);
-
       res.status(200).json({ mensagem: 'Status atualizado com sucesso' });
     } catch (error) {
-      //console.error("ERRO REAL:", error); // 👈 MOSTRA ERRO REAL
-
       res.status(500).json({ erro: 'Erro ao atualizar status' });
     }
   },
@@ -81,21 +76,18 @@ const chamadoController = {
   },
 
   atualizar: async (req, res) => {
-  try {
-    console.log("Chegou na função atualizar");
-    const { descricao, tipo } = req.body;
+    try {
+      console.log("Chegou na função atualizar");
+      const { descricao, tipo } = req.body;
 
-    await Chamado.atualizarChamadoCompleto(req.params.id, { descricao, tipo });
+      await Chamado.atualizarChamadoCompleto(req.params.id, { descricao, tipo });
 
-    res.status(200).json({ mensagem: 'Chamado atualizado com sucesso!' });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ erro: 'Erro ao atualizar chamado' });
-  }
-},
-
-
-  
+      res.status(200).json({ mensagem: 'Chamado atualizado com sucesso!' });
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ erro: 'Erro ao atualizar chamado' });
+    }
+  },
 };
 
 module.exports = chamadoController;
