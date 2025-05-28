@@ -6,97 +6,90 @@ import '../styles/HomeSec.css';
 
 function HomeSec() {
   const [showChat, setShowChat] = useState(false);
+  const [chamados, setChamados] = useState([]);
+  const [filtroStatus, setFiltroStatus] = useState('');
 
   const toggleChat = () => setShowChat(!showChat);
 
-  const [chamados, setChamados] = useState([]);
+  // ✅ useEffect com dependência correta
+  useEffect(() => {
+    const url = filtroStatus
+      ? `http://localhost:3000/api/chamados/filtro/status?status=${filtroStatus}`
+      : 'http://localhost:3000/api/chamados';
 
-useEffect(() => {
-  fetch('http://localhost:3001/api/chamados') // ajuste a URL conforme seu back-end
-    .then(response => response.json())
-    .then(data => setChamados(data))
-    .catch(error => console.error('Erro ao buscar chamados:', error));
-}, []);
-
+    fetch(url)
+      .then((res) => res.json())
+      .then((data) => setChamados(data))
+      .catch((err) => console.error('Erro ao carregar chamados:', err));
+  }, [filtroStatus]); // ✅ dispara ao trocar o status
 
   const getStatusClass = (status) => {
     switch (status) {
-      case 'Aberto': return 'status aberto';
-      case 'Em análise': return 'status em-analise';
-      case 'Fechado': return 'status fechado';
-      default: return 'status';
+      case 'Aberto':
+        return 'status aberto';
+      case 'Em Análise':
+        return 'status em-analise';
+      case 'Fechado':
+        return 'status fechado';
+      default:
+        return 'status';
     }
   };
 
   const getPrioridadeClass = (prioridade) => {
     switch (prioridade) {
-      case 'Alta': return 'prioridade alta';
-      case 'Média': return 'prioridade media';
-      case 'Baixa': return 'prioridade baixa';
-      default: return 'prioridade';
+      case 'Alta':
+        return 'prioridade alta';
+      case 'Média':
+        return 'prioridade media';
+      case 'Baixa':
+        return 'prioridade baixa';
+      default:
+        return 'prioridade';
     }
   };
-
-  const visualizarChamado = (protocolo) => {
-  alert(`Chamado ${protocolo} selecionado para visualização`);
-};
-
-const encerrarChamado = async (protocolo) => {
-  const confirmacao = window.confirm(`Deseja encerrar o chamado ${protocolo}?`);
-  if (!confirmacao) return;
-
-  try {
-    const response = await fetch(`http://localhost:3001/api/chamado/${protocolo}/encerrar`, {
-      method: 'PUT',
-    });
-    if (response.ok) {
-      alert('Chamado encerrado com sucesso!');
-      setChamados((prev) =>
-        prev.map((c) =>
-          c.protocolo === protocolo ? { ...c, status: 'Fechado' } : c
-        )
-      );
-    } else {
-      alert('Erro ao encerrar o chamado');
-    }
-  } catch (error) {
-    console.error('Erro ao encerrar chamado:', error);
-  }
-};
-
 
   return (
     <div className="home-sec-wrapper">
       <Sidebar />
       <div className="home-sec-container">
         <h1>Painel da Secretaria</h1>
+
+        {/* ✅ Filtro de status */}
+        <select value={filtroStatus} onChange={(e) => setFiltroStatus(e.target.value)}>
+          <option value="">Todos</option>
+          <option value="Aberto">Aberto</option>
+          <option value="Em Análise">Em Análise</option>
+          <option value="Fechado">Fechado</option>
+        </select>
+
         <table className="chamados-table">
           <thead>
             <tr>
               <th>Protocolo</th>
-              <th>Data de abertura</th>
+              <th>Data de Abertura</th>
+              <th>Tipo</th>
               <th>Prioridade</th>
-              <th>Tipo de Chamado</th>
               <th>Status</th>
-              <th>Ações</th>
-
             </tr>
           </thead>
           <tbody>
-  {chamados.map((ch) => (
-    <tr key={ch.protocolo}>
-      <td>{ch.protocolo}</td>
-      <td>{ch.data}</td>
-      <td><span className={getPrioridadeClass(ch.prioridade)}>{ch.prioridade}</span></td>
-      <td>{ch.tipo}</td>
-      <td><span className={getStatusClass(ch.status)}>{ch.status}</span></td>
-      <td>
-        <button onClick={() => visualizarChamado(ch.protocolo)}>Visualizar</button>
-        <button onClick={() => encerrarChamado(ch.protocolo)}>Encerrar</button>
-      </td>
-    </tr>
-  ))}
-</tbody>
+            {chamados.map((ch) => (
+              <tr key={ch.id}>
+                <td>{ch.protocolo}</td>
+                <td>{new Date(ch.data_abertura).toLocaleDateString()}</td>
+                <td>{ch.tipo}</td>
+                <td>
+                  <span className={getPrioridadeClass(ch.prioridade)}>
+                    {ch.prioridade}
+                  </span>
+                </td>
+                <td>
+                  <span className={getStatusClass(ch.status)}>{ch.status}</span>
+                </td>
+              </tr>
+            ))}
+          </tbody>
         </table>
       </div>
 

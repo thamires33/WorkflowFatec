@@ -53,7 +53,9 @@ h1 {
 }
 
 .status.em-analise {
-  background-color: #ff9800;
+  background-color: blueviolet;
+  color:#000;
+  
 }
 
 .status.fechado {

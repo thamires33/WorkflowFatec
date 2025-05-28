@@ -29,13 +29,27 @@ const chamadoController = {
   },
 
   listar: async (req, res) => {
-    try {
-      const chamados = await Chamado.listarTodos();
-      res.status(200).json(chamados);
-    } catch (error) {
-      res.status(500).json({ erro: 'Erro ao listar chamados' });
+  try {
+    const { status } = req.query;
+
+    let chamados;
+    if (status) {
+      // Se um status for passado como parâmetro na URL
+      chamados = await Chamado.listarPorStatus(status);
+    } else {
+      // Senão, lista todos
+      chamados = await Chamado.listarTodos();
     }
-  },
+
+    res.status(200).json(chamados);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ erro: 'Erro ao listar chamados' });
+  }
+},
+
+
+  
 
   buscarPorId: async (req, res) => {
     try {
@@ -88,6 +102,51 @@ const chamadoController = {
       res.status(500).json({ erro: 'Erro ao atualizar chamado' });
     }
   },
+
+    listarPorAluno: async (req, res) => {
+    try {
+      const aluno_ra = req.query.ra;
+
+      if (!aluno_ra) {
+        return res.status(400).json({ erro: 'RA do aluno não informado.' });
+      }
+
+      const chamados = await Chamado.listarPorAluno(aluno_ra);
+      res.status(200).json(chamados);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ erro: 'Erro ao listar chamados do aluno' });
+    }
+  },
+  listarPorStatus: async (req, res) => {
+  try {
+    const { status } = req.query;
+    const chamados = await Chamado.listarPorStatus(status);
+    res.status(200).json(chamados);
+  } catch (error) {
+    res.status(500).json({ erro: 'Erro ao filtrar chamados por status' });
+  }
+},
+
+filtrarPorStatus: async (req, res) => {
+  try {
+    const { status } = req.query;
+    if (!status) {
+      return res.status(400).json({ erro: 'Status não fornecido' });
+    }
+
+    const chamados = await Chamado.filtrarPorStatus(status);
+    res.status(200).json(chamados);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ erro: 'Erro ao filtrar chamados por status' });
+  }
+},
+
+
+
+  
+
 };
 
 module.exports = chamadoController;

@@ -1,24 +1,12 @@
 const db = require('../config/db');
 
-const db = require('../config/db');
-
-exports.criar = async ({ aluno_ra, tipo, descricao, prioridade, status, protocolo }) => {
+const criar = async ({ aluno_ra, tipo, descricao, prioridade, status, protocolo }) => {
   const [resultado] = await db.execute(
     `INSERT INTO chamados (aluno_ra, tipo, descricao, prioridade, status, protocolo, data_abertura)
      VALUES (?, ?, ?, ?, ?, ?, NOW())`,
     [aluno_ra, tipo, descricao, prioridade, status, protocolo]
   );
   return { protocolo, insertId: resultado.insertId };
-};
-
-  return await db.execute(sql, [
-    chamado.aluno_ra,
-    chamado.tipo,
-    chamado.descricao,
-    chamado.prioridade,
-    chamado.status,
-    chamado.protocolo
-  ]);
 };
 
 const listarTodos = async () => {
@@ -33,7 +21,7 @@ const buscarPorId = async (id) => {
 
 const atualizarStatus = async (id, status) => {
   const sql = `UPDATE chamados SET status = ? WHERE id = ?`;
-  await db.execute(sql, [ status, id]);
+  await db.execute(sql, [status, id]);
 };
 
 const atualizarChamadoCompleto = async (id, dados) => {
@@ -48,11 +36,33 @@ const deletar = async (id) => {
   return result;
 };
 
+const listarPorAluno = async (aluno_ra) => {
+  const [rows] = await db.execute(
+    'SELECT * FROM chamados WHERE aluno_ra = ?',
+    [aluno_ra]
+  );
+  return rows;
+};
+
+const listarPorStatus = async (status) => {
+  const [rows] = await db.execute('SELECT * FROM chamados WHERE status = ?', [status]);
+  return rows;
+};
+
+const filtrarPorStatus = async (status) => {
+  const [rows] = await db.execute('SELECT * FROM chamados WHERE status = ?', [status]);
+  return rows;
+};
+
 module.exports = {
   criar,
   listarTodos,
+  listarPorStatus,
+  listarPorAluno,
   buscarPorId,
   atualizarStatus,
   atualizarChamadoCompleto,
-  deletar
+  deletar,
+  listarPorStatus,
+  filtrarPorStatus,
 };

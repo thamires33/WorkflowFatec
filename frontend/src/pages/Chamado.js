@@ -13,6 +13,15 @@ function Chamado() {
     buscarChamados();
   }, []);
 
+  useEffect(() => {
+  const aluno_ra = localStorage.getItem('aluno_ra');
+  fetch(`http://localhost:3001/api/chamados/aluno?ra=${aluno_ra}`)
+    .then(res => res.json())
+    .then(data => setChamados(data))
+    .catch(err => console.error('Erro ao buscar chamados do aluno:', err));
+}, []);
+
+
   const buscarChamados = async () => {
     try {
       const resposta = await fetch('http://localhost:3000/api/chamados');
