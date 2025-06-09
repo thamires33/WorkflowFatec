@@ -1,15 +1,21 @@
-const express = require('express');
-const cors = require('cors');
-const chamadoRoutes = require('./src/routes/chamadoRoutes'); // Caminho corrigido
+// Backend/server.js
 
+const express = require('express');
 const app = express();
+const cors = require('cors');
 
 app.use(cors());
 app.use(express.json());
 
-app.use('/api/chamados', chamadoRoutes);
+const chamadoRoutes = require('./src/routes/chamadoRoutes'); // caminho correto
+const loginRoutes = require('./src/routes/loginRoutes');
 
-const PORT = 3000;
-app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
+
+// Usar as rotas definidas
+app.use('/chamados', chamadoRoutes);
+app.use('/', loginRoutes);
+
+
+app.listen(3000, () => {
+  console.log('Servidor rodando na porta 3000');
 });

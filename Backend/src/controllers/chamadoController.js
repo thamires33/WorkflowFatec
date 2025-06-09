@@ -1,152 +1,145 @@
-const Chamado = require('../models/Chamado.temp'); // Confirme a letra maiúscula!
-const gerarProtocolo = require('../utils/gerarProtocolo');
+const db = require('../config/db');
 
-const chamadoController = {
-  criar: async (req, res) => {
-    try {
-      const protocolo = gerarProtocolo(); // Gera o protocolo automaticamente
+// Criar chamado
+const criar = async (req, res) => {
+  const { protocolo, tipo, descricao, id_aluno } = req.body;
 
-      const chamado = {
-        aluno_ra: req.body.aluno_ra,
-        tipo: req.body.tipo,
-        descricao: req.body.descricao,
-        prioridade: req.body.prioridade || 'Média', // ✅ Adicionado
-        status: req.body.status || 'Aberto',
-        protocolo: protocolo
-      };
-
-      const resultado = await Chamado.criar(chamado);
-
-      res.status(201).json({
-        mensagem: 'Chamado criado com sucesso!',
-        protocolo: protocolo,
-        id: resultado.insertId
-      });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ erro: 'Erro ao criar chamado' });
-    }
-  },
-
-  listar: async (req, res) => {
   try {
-    const { status } = req.query;
+    const [result] = await db.promise().query(
+      'INSERT INTO chamados (protocolo, tipo, descricao, id_aluno, status) VALUES (?, ?, ?, ?, ?)',
+      [protocolo, tipo, descricao, id_aluno, 'Aberto']
+    );
 
-    let chamados;
-    if (status) {
-      // Se um status for passado como parâmetro na URL
-      chamados = await Chamado.listarPorStatus(status);
-    } else {
-      // Senão, lista todos
-      chamados = await Chamado.listarTodos();
-    }
-
-    res.status(200).json(chamados);
+    res.status(201).json({ id: result.insertId, message: 'Chamado criado com sucesso.' });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ erro: 'Erro ao listar chamados' });
+    console.error('Erro ao criar chamado:', error);
+    res.status(500).json({ message: 'Erro ao criar chamado.' });
   }
-},
-
-
-  
-
-  buscarPorId: async (req, res) => {
-    try {
-      const chamado = await Chamado.buscarPorId(req.params.id);
-
-      if (!chamado) {
-        return res.status(404).json({ erro: 'Chamado não encontrado' });
-      }
-
-      res.status(200).json(chamado);
-    } catch (error) {
-      res.status(500).json({ erro: 'Erro ao buscar chamado' });
-    }
-  },
-
-  atualizarStatus: async (req, res) => {
-    try {
-      const { status } = req.body;
-      await Chamado.atualizarStatus(req.params.id, status);
-      res.status(200).json({ mensagem: 'Status atualizado com sucesso' });
-    } catch (error) {
-      res.status(500).json({ erro: 'Erro ao atualizar status' });
-    }
-  },
-
-  deletar: async (req, res) => {
-    try {
-      const resultado = await Chamado.deletar(req.params.id);
-
-      if (resultado.affectedRows === 0) {
-        return res.status(404).json({ erro: 'Chamado não encontrado' });
-      }
-
-      res.status(200).json({ mensagem: 'Chamado deletado com sucesso' });
-    } catch (error) {
-      res.status(500).json({ erro: 'Erro ao deletar chamado' });
-    }
-  },
-
-  atualizar: async (req, res) => {
-    try {
-      console.log("Chegou na função atualizar");
-      const { descricao, tipo } = req.body;
-
-      await Chamado.atualizarChamadoCompleto(req.params.id, { descricao, tipo });
-
-      res.status(200).json({ mensagem: 'Chamado atualizado com sucesso!' });
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ erro: 'Erro ao atualizar chamado' });
-    }
-  },
-
-    listarPorAluno: async (req, res) => {
-    try {
-      const aluno_ra = req.query.ra;
-
-      if (!aluno_ra) {
-        return res.status(400).json({ erro: 'RA do aluno não informado.' });
-      }
-
-      const chamados = await Chamado.listarPorAluno(aluno_ra);
-      res.status(200).json(chamados);
-    } catch (error) {
-      console.error(error);
-      res.status(500).json({ erro: 'Erro ao listar chamados do aluno' });
-    }
-  },
-  listarPorStatus: async (req, res) => {
-  try {
-    const { status } = req.query;
-    const chamados = await Chamado.listarPorStatus(status);
-    res.status(200).json(chamados);
-  } catch (error) {
-    res.status(500).json({ erro: 'Erro ao filtrar chamados por status' });
-  }
-},
-
-filtrarPorStatus: async (req, res) => {
-  try {
-    const { status } = req.query;
-    if (!status) {
-      return res.status(400).json({ erro: 'Status não fornecido' });
-    }
-
-    const chamados = await Chamado.filtrarPorStatus(status);
-    res.status(200).json(chamados);
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ erro: 'Erro ao filtrar chamados por status' });
-  }
-},
-
-
-
-  
-
 };
 
-module.exports = chamadoController;
+// Listar todos
+const listar = async (req, res) => {
+  try {
+    const [result] = await db.promise().query('SELECT * FROM chamados');
+    res.json(result);
+  } catch (error) {
+    console.error('Erro ao listar chamados:', error);
+    res.status(500).json({ message: 'Erro ao listar chamados.' });
+  }
+};
+
+// Buscar por ID
+const buscarPorId = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const [result] = await db.promise().query('SELECT * FROM chamados WHERE id = ?', [id]);
+    if (result.length === 0) {
+      return res.status(404).json({ message: 'Chamado não encontrado.' });
+    }
+    res.json(result[0]);
+  } catch (error) {
+    console.error('Erro ao buscar chamado:', error);
+    res.status(500).json({ message: 'Erro ao buscar chamado.' });
+  }
+};
+
+// Listar por aluno
+const listarPorAluno = async (req, res) => {
+  const { id_aluno } = req.query;
+
+  try {
+    const [result] = await db.promise().query('SELECT * FROM chamados WHERE id_aluno = ?', [id_aluno]);
+    res.json(result);
+  } catch (error) {
+    console.error('Erro ao listar chamados por aluno:', error);
+    res.status(500).json({ message: 'Erro ao listar chamados por aluno.' });
+  }
+};
+
+// Listar por status
+const listarPorStatus = async (req, res) => {
+  const { status } = req.query;
+
+  try {
+    const [result] = await db.promise().query('SELECT * FROM chamados WHERE status = ?', [status]);
+    res.json(result);
+  } catch (error) {
+    console.error('Erro ao filtrar chamados por status:', error);
+    res.status(500).json({ message: 'Erro ao filtrar chamados por status.' });
+  }
+};
+
+// Atualizar chamado (completo)
+const atualizar = async (req, res) => {
+  const { id } = req.params;
+  const { protocolo, tipo, descricao, status } = req.body;
+
+  try {
+    await db.promise().query(
+      'UPDATE chamados SET protocolo = ?, tipo = ?, descricao = ?, status = ? WHERE id = ?',
+      [protocolo, tipo, descricao, status, id]
+    );
+    res.json({ message: 'Chamado atualizado com sucesso.' });
+  } catch (error) {
+    console.error('Erro ao atualizar chamado:', error);
+    res.status(500).json({ message: 'Erro ao atualizar chamado.' });
+  }
+};
+
+// Atualizar status
+const atualizarStatus = async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  try {
+    await db.promise().query('UPDATE chamados SET status = ? WHERE id = ?', [status, id]);
+    res.json({ message: 'Status atualizado com sucesso.' });
+  } catch (error) {
+    console.error('Erro ao atualizar status:', error);
+    res.status(500).json({ message: 'Erro ao atualizar status.' });
+  }
+};
+
+// Atribuir chamado ao funcionário
+const atribuirChamado = async (req, res) => {
+  const { id } = req.params;
+  const { responsavel, data_movimentacao } = req.body;
+
+  try {
+    await db.promise().query(
+      'UPDATE chamados SET responsavel = ?, data_movimentacao = ? WHERE id = ?',
+      [responsavel, data_movimentacao, id]
+    );
+
+    res.json({ message: 'Chamado atribuído com sucesso.' });
+  } catch (error) {
+    console.error('Erro ao atribuir chamado:', error);
+    res.status(500).json({ message: 'Erro ao atribuir chamado.' });
+  }
+};
+
+// Deletar chamado
+const deletar = async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    await db.promise().query('DELETE FROM chamados WHERE id = ?', [id]);
+    res.json({ message: 'Chamado excluído com sucesso.' });
+  } catch (error) {
+    console.error('Erro ao excluir chamado:', error);
+    res.status(500).json({ message: 'Erro ao excluir chamado.' });
+  }
+};
+
+module.exports = {
+  criar,
+  listar,
+  buscarPorId,
+  listarPorAluno,
+  listarPorStatus,
+  atualizar,
+  atualizarStatus,
+  atribuirChamado,
+  deletar
+};
