@@ -1,0 +1,13 @@
+const db = require('./config/db');
+
+async function testarConexao() {
+  try {
+    await db.query('SELECT 1');
+    console.log('✅ Conexão com o MySQL bem-sucedida!');
+  } catch (erro) {
+    console.error('❌ Erro ao conectar com o banco de dados:');
+    console.error(erro);
+  }
+}
+
+testarConexao();

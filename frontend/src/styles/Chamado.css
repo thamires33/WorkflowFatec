@@ -1,0 +1,57 @@
+/* styles/Chamado.css */
+
+.dashboard {
+  display: flex;
+  min-height: 100vh;
+  font-family: Arial, sans-serif;
+  background-color: #f5f8fa;
+}
+
+.content {
+  flex: 1;
+  padding: 40px;
+  background-color: #fff;
+}
+
+.content h2 {
+  font-size: 28px;
+  margin-bottom: 20px;
+  color: #1a1a1a;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #ffffff;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.05);
+}
+
+table thead {
+  background-color: #2e6cf6;
+  color: white;
+}
+
+table th,
+table td {
+  padding: 12px 16px;
+  text-align: left;
+  border-bottom: 1px solid #ddd;
+}
+
+table tr:hover {
+  background-color: #f0f4ff;
+}
+
+button {
+  padding: 8px 12px;
+  background-color: #2e6cf6;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+button:hover {
+  background-color: #1e50c2;
+}
