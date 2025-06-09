@@ -72,3 +72,16 @@ h1 {
   padding: 2rem;
   background-color: #ffffff;
 }
+
+/* styles/HomeSec.css ou global */
+button {
+  background-color: #d9534f;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #c9302c;
+}

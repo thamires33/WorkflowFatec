@@ -1,27 +1,76 @@
 // src/pages/Login.js
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/Login.css';
 
 function Login() {
-    const navigate = useNavigate();
+  const [ra, setRa] = useState('');
+  const [senha, setSenha] = useState('');
+  const [erro, setErro] = useState('');
+  const navigate = useNavigate();
 
-    const handleLogin = () => {
-    // Aqui você faria validação
-    navigate('/Home');
+  const handleLogin = async (e) => {
+    e.preventDefault();
+
+    // Validação simples
+    if (!ra || !senha) {
+      setErro('Preencha todos os campos.');
+      return;
+    }
+
+    try {
+      const response = await fetch('http://localhost:3000/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ ra, senha }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Exemplo: perfil pode ser 'aluno' ou 'secretaria'
+        if (data.perfil === 'aluno') {
+          navigate('/home');
+        } else if (data.perfil === 'secretaria') {
+          navigate('/HomeSec');
+        } else {
+          setErro('Perfil desconhecido.');
+        }
+      } else {
+        setErro(data.message || 'Erro ao fazer login.');
+      }
+    } catch (error) {
+      setErro('Erro na conexão com o servidor.');
+      console.error(error);
+    }
   };
+
   const handleMicrosoftLogin = () => {
     alert('Redirecionando para login com Microsoft...');
-    // Aqui você pode integrar com Azure AD futuramente
   };
 
   return (
     <div className="container-login">
-      <form className="login-form">
+      <form className="login-form" onSubmit={handleLogin}>
         <h2>Login</h2>
-        <input type="text" placeholder="RA" />
-        <input type="password" placeholder="Senha" />
-        <button type="submit" onClick={handleLogin}>Entrar </button>
+
+        {erro && <p className="erro-login">{erro}</p>}
+
+        <input
+          type="text"
+          placeholder="RA"
+          value={ra}
+          onChange={(e) => setRa(e.target.value)}
+        />
+        <input
+          type="password"
+          placeholder="Senha"
+          value={senha}
+          onChange={(e) => setSenha(e.target.value)}
+        />
+        <button type="submit">Entrar</button>
 
         <div className="divider">ou</div>
 
