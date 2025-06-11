@@ -5,6 +5,8 @@ const router = express.Router();
 const chamadoController = require('../controllers/chamadoController');
 
 // ✅ CRUD principal
+// 🟢 ROTA QUE LISTA TODOS OS CHAMADOS
+router.get('/', chamadoController.listar);
 router.post('/', chamadoController.criar);
 router.get('/aluno', chamadoController.listarPorAluno);
 router.get('/filtro/status', chamadoController.listarPorStatus);

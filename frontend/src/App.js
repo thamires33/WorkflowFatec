@@ -1,28 +1,26 @@
-// src/App.js
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
-import Login from './pages/Login';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
+
+import LoginAluno from './pages/LoginAluno';      // atualizado
+import HomeAluno from './pages/HomeAluno';        // atualizado
 import LoginSecretaria from './pages/LoginSecretaria';
-import HomeAluno from './pages/Home';
 import HomeSec from './pages/HomeSec';
 
 function App() {
   return (
     <Router>
       <Routes>
-        {/* Login do aluno */}
-        <Route path="/" element={<Login />} />
-        
-        {/* Login da secretaria */}
-        <Route path="/LoginSecretaria" element={<LoginSecretaria />} />
-
-        {/* Painel do aluno */}
+        <Route path="/loginAluno" element={<LoginAluno />} />          {/* Rota inicial atualizada */}
         <Route path="/home" element={<HomeAluno />} />
-
-        {/* Painel da secretaria */}
+        <Route path="/LoginSecretaria" element={<LoginSecretaria />} />
+        
         <Route path="/HomeSec" element={<HomeSec />} />
       </Routes>
+      <ToastContainer /> 
     </Router>
   );
 }

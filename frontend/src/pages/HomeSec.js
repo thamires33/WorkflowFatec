@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import PainelSecretaria from '../components/PainelSecretaria';
+import PainelColunas from '../components/PainelColunas';
+import Sidebar from '../components/Sidebar';
+import ChatBox from '../components/ChatBox';
 
 function HomeSec() {
   const [nome, setNome] = useState('');
@@ -11,25 +13,24 @@ function HomeSec() {
     if (nomeSalvo) {
       setNome(nomeSalvo);
     } else {
-      // Redireciona se não estiver logado
-      navigate('/LoginSecretaria');
+      navigate('/LoginSecretaria'); // redireciona se não estiver logado
     }
   }, [navigate]);
 
   const handleLogout = () => {
-    localStorage.removeItem('nomeSecretaria'); // Limpa o nome
-    navigate('/LoginSecretaria');             // Redireciona para login
+    localStorage.removeItem('nomeSecretaria');
+    navigate('/LoginSecretaria');
   };
 
   return (
-    <div className="home-container">
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+    <div>
+    <Sidebar />
+      <ChatBox />
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px' }}>
         <h2>Painel de {nome}</h2>
-        <button onClick={handleLogout} style={{ padding: '8px 12px' }}>
-          Sair
-        </button>
+        <button onClick={handleLogout}>Sair</button>
       </div>
-      <PainelSecretaria usuario={nome} />
+      <PainelColunas usuario={nome} />
     </div>
   );
 }

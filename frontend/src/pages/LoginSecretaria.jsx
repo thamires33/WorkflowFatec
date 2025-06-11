@@ -1,62 +1,56 @@
-// src/pages/LoginSecretaria.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import '../styles/Login.css';
 
 function LoginSecretaria() {
   const [email, setEmail] = useState('');
   const [senha, setSenha] = useState('');
-  const [erro, setErro] = useState('');
   const navigate = useNavigate();
 
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    if (!email || !senha) {
-      setErro('Preencha todos os campos.');
-      return;
-    }
-
     try {
-      const response = await fetch('http://localhost:3000/login', {
+      const response = await fetch('http://localhost:3000/login-secretaria', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ra: email, senha }) // Usamos 'ra' como campo genérico
+        body: JSON.stringify({ ra: email, senha }) // 'ra' sendo usado como email
       });
 
       const data = await response.json();
 
-      if (response.ok && data.perfil === 'secretaria') {
-        localStorage.setItem('nomeSecretaria', data.nome); // <- Salvamos o nome aqui!
-        navigate('/HomeSec'); // vai para o painel da secretaria
+      if (response.ok) {
+        localStorage.setItem('nomeSecretaria', data.nome);
+        toast.success(`Bem-vindo(a), ${data.nome}!`);
+        navigate('/HomeSec');
       } else {
-        setErro(data.message || 'Erro ao fazer login.');
+        toast.error(data.message || 'Credenciais inválidas.');
       }
-    } catch (err) {
-      setErro('Erro na conexão com o servidor.');
-      console.error(err);
+    } catch (error) {
+      console.error('Erro no login:', error);
+      toast.error('Erro ao conectar com o servidor.');
     }
   };
 
   return (
     <div className="container-login">
-      <form onSubmit={handleLogin} className="login-form">
+      <form className="login-form" onSubmit={handleLogin}>
         <h2>Login da Secretaria</h2>
-        {erro && <p style={{ color: 'red' }}>{erro}</p>}
-
         <input
-          type="text"
+          type="email"
           placeholder="Email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          required
         />
-
         <input
           type="password"
           placeholder="Senha"
           value={senha}
           onChange={(e) => setSenha(e.target.value)}
+          required
         />
-
         <button type="submit">Entrar</button>
       </form>
     </div>
