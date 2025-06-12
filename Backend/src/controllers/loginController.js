@@ -1,6 +1,6 @@
 // src/controllers/loginController.js
 const db = require('../config/db');
-const bcrypt = require('bcrypt');
+const bcrypt = require('bcryptjs');
 
 // Login do aluno (RA e senha simples)
 const loginAluno = async (req, res) => {

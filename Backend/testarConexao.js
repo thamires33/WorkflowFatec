@@ -1,3 +1,23 @@
+const bcrypt = require('bcryptjs');
+
+const senha = 'carla789';
+
+async function teste() {
+  const hash = await bcrypt.hash(senha, 10);
+  console.log('Hash gerado:', hash);
+
+  const resultado = await bcrypt.compare(senha, hash);
+  console.log('Resultado da comparação:', resultado ? '✅ Correta' : '❌ Incorreta');
+}
+
+teste();
+
+
+
+
+
+
+
 //const db = require('./config/db');
 
 /*async function testarConexao() {
@@ -11,7 +31,7 @@
 }
 
 testarConexao();*/
-const bcrypt = require('bcrypt');
+/*const bcrypt = require('bcrypt');
 const db = require('./src/config/db'); // ajuste o caminho conforme necessário
 
 async function atualizarSenha() {
@@ -24,5 +44,6 @@ async function atualizarSenha() {
   process.exit();
 }
 
-atualizarSenha();
+atualizarSenha();*/
+
 

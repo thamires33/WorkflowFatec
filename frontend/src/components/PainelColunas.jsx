@@ -22,7 +22,7 @@ function ColunaStatus({ status, children }) {
   );
 }
 
-function CardChamado({ chamado }) {
+function CardChamado({ chamado, onVisualizarChamado }) {
   const { attributes, listeners, setNodeRef, transform } = useDraggable({ id: chamado.id.toString() });
 
   const style = {
@@ -39,12 +39,15 @@ function CardChamado({ chamado }) {
     <div ref={setNodeRef} {...attributes} {...listeners} style={style}>
       <strong>{chamado.protocolo}</strong><br />
       {chamado.tipo}<br />
-      <small>Prioridade: {chamado.prioridade}</small>
+      <small>Prioridade: {chamado.prioridade}</small><br />
+      <button onClick={() => onVisualizarChamado(chamado)} style={{ marginTop: '5px' }}>
+        Visualizar
+      </button>
     </div>
   );
 }
 
-export default function PainelColunas({ usuario }) {
+export default function PainelColunas({ usuario, onVisualizarChamado }) {
   const [chamados, setChamados] = useState({});
 
   useEffect(() => {
@@ -117,7 +120,9 @@ export default function PainelColunas({ usuario }) {
       <div style={{ display: 'flex', justifyContent: 'space-around', padding: 20 }}>
         {statusList.map(status => (
           <ColunaStatus key={status} status={status}>
-            {chamados[status]?.map(c => <CardChamado key={c.id} chamado={c} />)}
+            {chamados[status]?.map(c => (
+              <CardChamado key={c.id} chamado={c} onVisualizarChamado={onVisualizarChamado} />
+            ))}
           </ColunaStatus>
         ))}
       </div>
