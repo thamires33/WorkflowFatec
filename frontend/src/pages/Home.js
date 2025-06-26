@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
-import '../styles/Home.css';
 import ChamadoModal from '../components/ChamadoModal';
-import Sidebar from '../components/Sidebar';
+import LayoutPainel from '../components/LayoutPainel';
 import ChatBox from '../components/ChatBox';
-import '../styles/Chatbox.css'
+import '../styles/Chatbox.css';
+
 function Home() {
-  
   const [modalAberta, setModalAberta] = useState(false);
 
   const handleAbrirChamado = () => {
@@ -17,21 +16,20 @@ function Home() {
   };
 
   return (
-    <div className="home-container">
-      <Sidebar/>
-      <ChatBox/>
+    <>
+      <LayoutPainel
+        titulo="Bem-vindo!"
+        subtitulo="Solicite aqui os documentos que você precisa da secretaria acadêmica."
+        botaoTexto="Abrir novo chamado"
+        onBotaoClick={handleAbrirChamado}
+      >
+        {/* Você pode incluir conteúdo complementar aqui, se desejar */}
+        <ChatBox />
+      </LayoutPainel>
 
-      <main className="home-content">
-        <h1>Bem-vindo!</h1>
-        <p>Solicite aqui os documentos que precisar da secretaria acadêmica.</p>
-        <button className="abrir-chamado-btn" onClick={handleAbrirChamado}>
-          Abrir novo chamado
-        </button>
-      </main>
-
-      {/* Modal aparece aqui quando aberta */}
+      {/* Modal de abertura de chamado */}
       <ChamadoModal isOpen={modalAberta} onClose={handleFecharModal} />
-    </div>
+    </>
   );
 }
 
