@@ -1,5 +1,14 @@
 const db = require('../config/db');
 
+
+//listar todos chamados
+
+const listarTodos = async (req, res) => {
+  const [rows] = await db.query('SELECT * FROM chamados');
+  res.json(rows);
+};
+
+
 // Criar chamado
 const criar = async (req, res) => {
   const { protocolo, tipo, descricao, id_aluno } = req.body;
@@ -135,6 +144,7 @@ const deletar = async (req, res) => {
 module.exports = {
   criar,
   listar,
+  listarTodos,
   buscarPorId,
   listarPorAluno,
   listarPorStatus,
