@@ -249,6 +249,21 @@ exports.deletar = async (req, res) => {
   }
 };
 
+<<<<<<< HEAD
 const Chamado = require('../models/Chamado.temp');
 
 
+=======
+module.exports = {
+  criar,
+  listar,
+  listarTodos,
+  buscarPorId,
+  listarPorAluno,
+  listarPorStatus,
+  atualizar,
+  atualizarStatus,
+  atribuirChamado,
+  deletar
+};
+>>>>>>> rafront

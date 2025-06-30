@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const chamadoController = require('../controllers/chamadoController');
+<<<<<<< HEAD
 
 // Verificação de que todas as funções estão exportadas corretamente
 console.log('Funções do controller:');
@@ -19,6 +20,16 @@ console.log('Funções do controller:');
 ].forEach((fn) => {
   console.log(`${fn}:`, typeof chamadoController[fn]);
 });
+=======
+const db = require('../config/db');
+// ✅ CRUD principal
+router.post('/', chamadoController.criar);
+router.get('/', chamadoController.listarTodos); // para GET /chamados
+router.get('/aluno', chamadoController.listarPorAluno);
+router.get('/filtro/status', chamadoController.listarPorStatus);
+router.get('/:id', chamadoController.buscarPorId);
+router.delete('/:id', chamadoController.deletar);
+>>>>>>> rafront
 
 /* =========================================================
    CRUD principal de chamados
