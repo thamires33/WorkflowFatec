@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import '../styles/Login.css';
-import { toast } from 'react-toastify';
+//import { toast } from 'react-toastify';
 
 function LoginAluno() {
   const [ra, setRa] = useState('');
