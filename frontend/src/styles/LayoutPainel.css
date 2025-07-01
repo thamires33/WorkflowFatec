@@ -86,3 +86,29 @@
 .conteudo-extra {
   margin-top: 20px;
 }
+
+.painel-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+.painel-conteudo {
+  margin-left: 200px;
+  padding: 40px;
+  flex-grow: 1;
+}
+
+.botao-acao {
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #1e40af;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.conteudo-extra {
+  margin-top: 30px;
+}
+
