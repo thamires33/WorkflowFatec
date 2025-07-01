@@ -11,13 +11,18 @@ function LoginAluno() {
   const handleLogin = async (e) => {
     e.preventDefault();
 
-    if (!ra || !senha) {
-      toast.error('Preencha todos os campos.');
+    if (ra.length !== 9) {
+      toast.error('RA deve conter exatamente 9 dígitos.');
+      return;
+    }
+
+    if (!senha) {
+      toast.error('Preencha a senha.');
       return;
     }
 
     try {
-      const response = await fetch('http://localhost:3000/login-aluno', {
+      const response = await fetch('http://localhost:3000/api/auth/login-aluno', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -26,6 +31,7 @@ function LoginAluno() {
       });
 
       const data = await response.json();
+      console.log('Dados recebidos do login:', data);
 
       if (!response.ok) {
         toast.error(data.message || 'Erro ao fazer login.');
@@ -33,14 +39,19 @@ function LoginAluno() {
       }
 
       if (data.perfil === 'aluno') {
+        localStorage.setItem('ra', data.ra);
+        localStorage.setItem('alunoNome', data.nome);      // 💡 aqui: backend retorna `nome`
+        localStorage.setItem('idAluno', data.id);          // 💡 backend retorna `id`
         toast.success('Login realizado com sucesso!');
-        navigate('/home');
+        navigate('/HomeAluno');
       } else if (data.perfil === 'secretaria') {
+        localStorage.setItem('nomeSecretaria', data.nome); // 💡 tudo certo aqui também
         toast.success('Login da secretaria realizado!');
         navigate('/HomeSec');
       } else {
         toast.error('Perfil desconhecido.');
       }
+
     } catch (error) {
       console.error('Erro ao conectar com o servidor:', error);
       toast.error('Erro na conexão com o servidor.');

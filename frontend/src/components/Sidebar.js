@@ -1,19 +1,40 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import '../styles/Sidebar.css';
 
 function Sidebar() {
+  const [nomeUsuario, setNomeUsuario] = useState('');
   const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    const nomeAluno = localStorage.getItem('alunoNome');
+    const nomeSecretaria = localStorage.getItem('nomeSecretaria');
+
+    if (location.pathname.toLowerCase().includes('homealuno')) {
+      setNomeUsuario(nomeAluno || 'Aluno');
+    } else if (location.pathname.toLowerCase().includes('homesec')) {
+      setNomeUsuario(nomeSecretaria || 'Secretaria');
+    } else {
+      setNomeUsuario('');
+    }
+  }, [location.pathname]);
+
+  const handleLogout = () => {
+    localStorage.clear();
+    if (location.pathname.toLowerCase().includes('homealuno')) {
+      navigate('/LoginAluno');
+    } else {
+      navigate('/LoginSecretaria');
+    }
+  };
 
   return (
-    <aside className="sidebar">
-      <h2 className="logo">Workflow Fatec</h2>
-      <nav className="menu">
-        <button className="menu-btn" onClick={() => navigate('/Home')}>Início</button>
-        <button className="menu-btn" onClick={() => navigate('/Chamado')}>Meus Chamados</button>
-        <button className="menu-btn sair-btn" onClick={() => navigate('/')}>Sair</button>
-      </nav>
-    </aside>
+    <div className="sidebar">
+      <h2>Workflow Fatec</h2>
+      {nomeUsuario && <p className="sidebar-nome">👤 {nomeUsuario}</p>}
+      <button onClick={handleLogout}>Sair</button>
+    </div>
   );
 }
 

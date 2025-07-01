@@ -1,0 +1,105 @@
+/* Envolve toda a tela com a barra lateral e o conteúdo principal */
+.home-wrapper {
+  display: flex;
+  height: 100vh;
+  font-family: Arial, sans-serif;
+}
+
+/* Estilo da barra lateral */
+.sidebar {
+  width: 220px;
+  background-color: #1e3a8a;
+  color: white;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Logo ou título da barra lateral */
+.logo {
+  font-size: 24px;
+  margin-bottom: 40px;
+}
+
+/* Menu da barra lateral */
+.menu {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.menu-btn {
+  background: none;
+  border: none;
+  color: white;
+  font-size: 16px;
+  text-align: left;
+  padding: 10px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.3s;
+}
+
+.menu-btn:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Botão sair */
+.sair-btn {
+  margin-top: auto;
+  background-color: #dc2626;
+  padding: 10px;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+/* Área principal do conteúdo */
+.home-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  padding: 40px;
+  background-color: #f9fafb;
+  overflow-y: auto;
+}
+
+/* Título principal */
+.home-content h1 {
+  color: #1e3a8a;
+  margin-bottom: 10px;
+}
+
+/* Parágrafo de instrução */
+.home-content p {
+  font-size: 16px;
+  margin-bottom: 20px;
+}
+
+/* Botão de abrir chamado */
+.abrir-chamado-btn {
+  margin-top: 30px;
+  padding: 12px 24px;
+  background-color: #2563eb;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.abrir-chamado-btn:hover {
+  background-color: #1d4ed8;
+}
+
+/* Opcional: ajuste o ChatBox para não sobrepor elementos */
+.chatbox {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 10;
+}

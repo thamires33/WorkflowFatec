@@ -8,37 +8,40 @@ import '../styles/Chatbox.css';
 
 function HomeAluno() {
   const [modalAberta, setModalAberta] = useState(false);
+  const [nomeAluno, setNomeAluno] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
     const ra = localStorage.getItem('ra');
+    const nome = localStorage.getItem('alunoNome');
+
     if (!ra) {
-      navigate('/login'); // redireciona para o login se não houver RA salvo
+      navigate('/LoginAluno');
+    } else {
+      setNomeAluno(nome || '');
     }
   }, [navigate]);
 
-  const handleAbrirChamado = () => {
-    setModalAberta(true);
-  };
-
-  const handleFecharModal = () => {
-    setModalAberta(false);
-  };
+  const abrirChamado = () => setModalAberta(true);
+  const fecharModal = () => setModalAberta(false);
 
   return (
-    <div className="home-container">
+    <div className="home-wrapper">
       <Sidebar />
-      <ChatBox />
 
-      <main className="home-content">
-        <h1>Bem-vindo!</h1>
-        <p>Solicite aqui os documentos que precisar da secretaria acadêmica.</p>
-        <button className="abrir-chamado-btn" onClick={handleAbrirChamado}>
-          Abrir novo chamado
-        </button>
-      </main>
+      <div className="home-container">
+        <main className="home-content">
+          <h1>Bem-vindo(a), {nomeAluno}!</h1>
+          <p>Solicite aqui os documentos que precisar da secretaria acadêmica.</p>
+          <button className="abrir-chamado-btn" onClick={abrirChamado}>
+            Abrir novo chamado
+          </button>
+        </main>
 
-      <ChamadoModal isOpen={modalAberta} onClose={handleFecharModal} />
+        <ChatBox />
+      </div>
+
+      <ChamadoModal isOpen={modalAberta} onClose={fecharModal} />
     </div>
   );
 }
