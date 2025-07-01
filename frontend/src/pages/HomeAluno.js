@@ -1,45 +1,47 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import '../styles/Home.css';
+// src/pages/HomeAluno.js
+import React, { useEffect, useState } from 'react';
+import LayoutPainel from '../components/LayoutPainel';
 import ChamadoModal from '../components/ChamadoModal';
-import Sidebar from '../components/Sidebar';
-import ChatBox from '../components/ChatBox';
-import '../styles/Chatbox.css';
+import { useNavigate } from 'react-router-dom';
 
 function HomeAluno() {
+  const [nome, setNome] = useState('');
   const [modalAberta, setModalAberta] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
     const ra = localStorage.getItem('ra');
     if (!ra) {
-      navigate('/login'); // redireciona para o login se não houver RA salvo
+      navigate('/login');
+    }
+
+    const nomeSalvo = localStorage.getItem('nomeAluno');
+    if (nomeSalvo) {
+      setNome(nomeSalvo);
     }
   }, [navigate]);
 
-  const handleAbrirChamado = () => {
+  const abrirChamado = () => {
     setModalAberta(true);
   };
 
-  const handleFecharModal = () => {
+  const fecharModal = () => {
     setModalAberta(false);
   };
 
   return (
-    <div className="home-container">
-      <Sidebar />
-      <ChatBox />
+    <>
+      <LayoutPainel
+        titulo={`Bem-vindo, ${nome}`}
+        subtitulo="Use o botão abaixo para abrir um novo chamado."
+        botaoTexto="Abrir Chamado"
+        onBotaoClick={abrirChamado}
+      >
+        {/* Conteúdo adicional do painel pode ir aqui */}
+      </LayoutPainel>
 
-      <main className="home-content">
-        <h1>Bem-vindo!</h1>
-        <p>Solicite aqui os documentos que precisar da secretaria acadêmica.</p>
-        <button className="abrir-chamado-btn" onClick={handleAbrirChamado}>
-          Abrir novo chamado
-        </button>
-      </main>
-
-      <ChamadoModal isOpen={modalAberta} onClose={handleFecharModal} />
-    </div>
+      <ChamadoModal isOpen={modalAberta} onClose={fecharModal} />
+    </>
   );
 }
 
