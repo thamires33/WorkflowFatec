@@ -21,11 +21,12 @@ const loginAluno = async (req, res) => {
     }
 
     res.json({
-      id: aluno.id,
-      nome: aluno.nome,
-      perfil: 'aluno',
-      ra: aluno.ra
-    });
+    idAluno: aluno.id,
+    nome: aluno.nome,
+    perfil: 'aluno',
+    ra: aluno.ra
+});
+
   } catch (error) {
     console.error('Erro no login do aluno:', error);
     res.status(500).json({ message: 'Erro no servidor.' });
