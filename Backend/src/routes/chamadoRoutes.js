@@ -1,58 +1,45 @@
+// src/routes/chamadoRoutes.js
 const express = require('express');
 const router = express.Router();
+const upload = require('../config/multer');
 const chamadoController = require('../controllers/chamadoController');
 
-// Verificação de que todas as funções estão exportadas corretamente
-console.log('Funções do controller:');
-[
-  'criar',
-  'responderChamado',
-  'listar',
-  'listarPorAluno',
-  'listarPorStatus',
-  'listarMensagens',
-  'buscarPorId',
-  'atualizar',
-  'atualizarStatus',
-  'atribuirChamado',
-  'deletar'
-].forEach((fn) => {
-  console.log(`${fn}:`, typeof chamadoController[fn]);
-});
+console.log('🔍 ChamadoController:', Object.keys(chamadoController));
 
-/* =========================================================
-   CRUD principal de chamados
-   ========================================================= */
+/* ==================== ROTAS DE CHAMADOS ==================== */
 
 // LISTAR todos os chamados
 router.get('/', chamadoController.listar);
 
-// CRIAR um novo chamado
-router.post('/', chamadoController.criar);
-
-// RESPONDER chamado ao aluno
-router.post('/:id/responder', chamadoController.responderChamado);
-
-// FILTROS (devem vir antes das rotas genéricas com :id)
-router.get('/aluno/:ra', chamadoController.listarPorAluno)
+// FILTROS (⚠️ Devem vir antes das rotas com `:id`)
+router.get('/aluno/:ra', chamadoController.listarPorAluno);
 router.get('/status/:status', chamadoController.listarPorStatus);
 
-// LISTAR mensagens de um chamado
+// LISTAR mensagens
 router.get('/:id/mensagens', chamadoController.listarMensagens);
 
 // BUSCAR por ID
-router.get('/:id', chamadoController.buscarPorId);
+//router.get('/:id', chamadoController.buscarPorId); // ⚠️ Essa precisa ser DEPOIS dos filtros acima
 
-// ATUALIZAR chamado completo
-router.put('/:id', chamadoController.atualizar);
+// CRIAR chamado com upload
+router.post('/', upload.single('anexo'), chamadoController.criar);
 
-// ATUALIZAR apenas status
-router.put('/:id/status', chamadoController.atualizarStatus);
+// RESPONDER ao aluno
+router.post('/:id/responder', upload.single('anexo'), chamadoController.responderChamado);
+
+// ENCAMINHAR chamado com upload (campo correto: 'arquivo')
+router.post('/:id/encaminhar', upload.single('arquivo'), chamadoController.encaminharChamado);
+
+// ATUALIZAR chamado
+//router.put('/:id', chamadoController.atualizar);
+
+// ATUALIZAR status
+//router.put('/:id/status', chamadoController.atualizarStatus);
 
 // ATRIBUIR responsável
-router.put('/:id/atribuir', chamadoController.atribuirChamado);
+//router.put('/:id/atribuir', chamadoController.atribuirChamado);
 
 // DELETAR chamado
-router.delete('/:id', chamadoController.deletar);
+//router.delete('/:id', chamadoController.deletar);
 
 module.exports = router;

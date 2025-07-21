@@ -1,26 +1,33 @@
-// Backend/src/config/multer.js
+// src/config/multer.js
 const multer = require('multer');
 const path = require('path');
-const fs = require('fs');
 
-// Garante que a pasta de uploads exista
-const uploadDir = path.resolve(__dirname, '..', '..', 'uploads');
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
-
-// Configuração de armazenamento
+// Definir armazenamento
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, uploadDir);
+    cb(null, path.resolve(__dirname, '..', '..', 'uploads'));
   },
   filename: (req, file, cb) => {
-    const timestamp = Date.now();
-    const sanitizedName = file.originalname.replace(/\s+/g, '_').replace(/[^\w.-]/g, '');
-    cb(null, `${timestamp}-${sanitizedName}`);
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + path.extname(file.originalname));
   }
 });
 
-const upload = multer({ storage });
+// Filtro de tipo de arquivo (opcional, mas recomendável)
+const fileFilter = (req, file, cb) => {
+  const allowed = ['.png', '.jpg', '.jpeg', '.pdf', '.doc', '.docx'];
+  const ext = path.extname(file.originalname).toLowerCase();
+  if (allowed.includes(ext)) {
+    cb(null, true);
+  } else {
+    cb(new Error('Tipo de arquivo não permitido.'), false);
+  }
+};
+
+const upload = multer({
+  storage,
+  fileFilter,
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB
+});
 
 module.exports = upload;
