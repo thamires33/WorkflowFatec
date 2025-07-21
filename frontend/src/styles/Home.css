@@ -72,3 +72,8 @@
 .abrir-chamado-btn:hover {
   background-color: #1d4ed8;
 }
+
+.home-wrapper {
+  display: flex;
+  height: 100vh;
+}

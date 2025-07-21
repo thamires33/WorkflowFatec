@@ -10,7 +10,11 @@ function HomeSec() {
   const [chamadoSelecionado, setChamadoSelecionado] = useState(null);
   const navigate = useNavigate();
 
+<<<<<<< HEAD
   // 🔐 Verifica autenticação
+=======
+  // Valida login da secretaria
+>>>>>>> backendra
   useEffect(() => {
     const nomeSalvo = localStorage.getItem('nomeSecretaria');
     if (nomeSalvo) {
@@ -20,12 +24,17 @@ function HomeSec() {
     }
   }, [navigate]);
 
+<<<<<<< HEAD
   // 🚪 Logout
+=======
+  // Logout da secretaria
+>>>>>>> backendra
   const handleLogout = () => {
     localStorage.removeItem('nomeSecretaria');
     navigate('/LoginSecretaria');
   };
 
+<<<<<<< HEAD
   // 💬 Envia resposta ao aluno
   const handleResponder = async (id, resposta) => {
     try {
@@ -42,9 +51,32 @@ function HomeSec() {
     } catch (err) {
       console.error('Erro ao responder chamado:', err);
       alert('Erro ao enviar resposta ao aluno.');
-    }
-  };
+=======
+  // Envia resposta ao aluno via backend
+  const onResponderChamado = async (id, formData) => {
+  try {
+    formData.append('mensagem', formData.get('resposta')); // garantir campo 'mensagem'
 
+    const response = await fetch(`http://localhost:3000/api/chamados/${id}/responder`, {
+      method: 'POST',
+      body: formData,
+    });
+
+    const data = await response.json();
+
+    if (response.ok) {
+      alert('Resposta enviada com sucesso!');
+    } else {
+      alert(`Erro: ${data.message}`);
+>>>>>>> backendra
+    }
+  } catch (error) {
+    console.error('Erro ao enviar resposta:', error);
+    alert('Erro interno no servidor.');
+  }
+};
+
+<<<<<<< HEAD
   // 📧 Encaminha chamado por e-mail
   const handleEncaminhar = async (id, email) => {
     try {
@@ -97,17 +129,43 @@ function HomeSec() {
 
       <PainelColunas usuario={nome} onVisualizarChamado={setChamadoSelecionado} />
 
+=======
+
+  // Abre o modal de visualização
+  const handleVisualizarChamado = (chamado) => {
+    console.log('🧩 setChamadoSelecionado acionado:', chamado);
+    setChamadoSelecionado({ ...chamado }); // nova referência
+  };
+
+  return (
+    <>
+      <Sidebar nomeUsuario={nome} onLogout={handleLogout} />
+
+      <div className="home-container">
+        <PainelColunas
+          usuario={nome}
+          onVisualizarChamado={handleVisualizarChamado}
+        />
+        <ChatBox />
+      </div>
+
+      {/* Modal de visualização do chamado */}
+>>>>>>> backendra
       {chamadoSelecionado && (
         <VisualizarChamadoModalSec
+          key={chamadoSelecionado.id}
           chamado={chamadoSelecionado}
           onClose={() => setChamadoSelecionado(null)}
-          onResponder={handleResponder}
-          onEncaminhar={handleEncaminhar}
+          onResponder={onResponderChamado}
         />
       )}
+<<<<<<< HEAD
 
       <ChatBox />
     </div>
+=======
+    </>
+>>>>>>> backendra
   );
 }
 

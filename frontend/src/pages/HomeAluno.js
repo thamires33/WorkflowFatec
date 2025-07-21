@@ -1,47 +1,47 @@
 // src/pages/HomeAluno.js
 import React, { useEffect, useState } from 'react';
-import LayoutPainel from '../components/LayoutPainel';
+import Sidebar from '../components/Sidebar';
 import ChamadoModal from '../components/ChamadoModal';
+import ChatBox from '../components/ChatBox';
 import { useNavigate } from 'react-router-dom';
 
 function HomeAluno() {
-  const [nome, setNome] = useState('');
   const [modalAberta, setModalAberta] = useState(false);
+  const [nomeAluno, setNomeAluno] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
     const ra = localStorage.getItem('ra');
-    if (!ra) {
-      navigate('/login');
-    }
+    const nome = localStorage.getItem('alunoNome');
 
-    const nomeSalvo = localStorage.getItem('nomeAluno');
-    if (nomeSalvo) {
-      setNome(nomeSalvo);
+    if (!ra) {
+      navigate('/LoginAluno');
+    } else {
+      setNomeAluno(nome || '');
     }
   }, [navigate]);
 
-  const abrirChamado = () => {
-    setModalAberta(true);
-  };
-
-  const fecharModal = () => {
-    setModalAberta(false);
-  };
+  const abrirChamado = () => setModalAberta(true);
+  const fecharModal = () => setModalAberta(false);
 
   return (
-    <>
-      <LayoutPainel
-        titulo={`Bem-vindo, ${nome}`}
-        subtitulo="Use o botão abaixo para abrir um novo chamado."
-        botaoTexto="Abrir Chamado"
-        onBotaoClick={abrirChamado}
-      >
-        {/* Conteúdo adicional do painel pode ir aqui */}
-      </LayoutPainel>
+    <div className="home-wrapper">
+      <Sidebar nomeUsuario={nomeAluno} />
 
-      <ChamadoModal isOpen={modalAberta} onClose={fecharModal} />
-    </>
+      <div className="home-container">
+        <main className="home-content">
+          <h1>Bem-vindo(a), {nomeAluno}!</h1>
+          <p>Solicite aqui os documentos que precisar da secretaria acadêmica.</p>
+          <button className="abrir-chamado-btn" onClick={abrirChamado}>
+            Abrir novo chamado
+          </button>
+        </main>
+
+        <ChatBox />
+      </div>
+
+      {modalAberta && <ChamadoModal isOpen={modalAberta} onClose={fecharModal} />}
+    </div>
   );
 }
 

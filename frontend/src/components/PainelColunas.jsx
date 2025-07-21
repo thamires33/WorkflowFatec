@@ -1,8 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { DndContext, closestCenter, useDroppable, useDraggable } from '@dnd-kit/core';
+import {
+  DndContext,
+  closestCenter,
+  useDroppable,
+  useDraggable,
+} from '@dnd-kit/core';
 
 const statusList = ['Geral', 'Aberto', 'Em Andamento', 'Atendido', 'Encerrado'];
 
+// Componente de Coluna (Droppable)
 function ColunaStatus({ status, children }) {
   const { setNodeRef } = useDroppable({ id: status });
 
@@ -25,48 +31,59 @@ function ColunaStatus({ status, children }) {
   );
 }
 
+// Cartão individual do chamado (Draggable)
 function CardChamado({ chamado, onVisualizarChamado }) {
-  const { attributes, listeners, setNodeRef, transform } = useDraggable({ id: chamado.id.toString() });
+  const { attributes, listeners, setNodeRef, transform } = useDraggable({
+    id: chamado.id.toString(),
+  });
 
   const style = {
-    transform: transform ? `translate(${transform.x}px, ${transform.y}px)` : '',
+    transform: transform
+      ? `translate(${transform.x}px, ${transform.y}px)`
+      : '',
     padding: '10px',
     marginBottom: '10px',
-    background: '#fff',
     border: '1px solid #ccc',
-    borderRadius: '5px',
-    boxShadow: '1px 1px 4px rgba(0,0,0,0.1)',
-    position: 'relative',
+    borderRadius: '6px',
+    backgroundColor: '#fff',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+  };
+
+  const handleVisualizarClick = () => {
+    console.log('🔍 Cliquei no botão Visualizar:', chamado);
+    onVisualizarChamado({ ...chamado });
   };
 
   return (
-    <div ref={setNodeRef} style={style} className="card-chamado">
-      <div
-        {...listeners}
-        {...attributes}
-        style={{
-          cursor: 'grab',
-          position: 'absolute',
-          top: 5,
-          right: 5,
-          userSelect: 'none',
-        }}
-        aria-label="Arrastar chamado"
-      >
-        ┃┃
+    <div
+      ref={setNodeRef}
+      {...attributes}
+      className="card-chamado"
+      style={style}
+    >
+      {/* Área de arrasto */}
+      <div {...listeners} style={{ cursor: 'grab' }}>
+        <strong>{chamado.protocolo}</strong><br />
+        {chamado.tipo}<br />
+        <small>Prioridade: {chamado.prioridade}</small>
       </div>
 
-      <p className="card-protocolo">{chamado.protocolo}</p>
-      <p>{chamado.tipo}</p>
-      <small>Prioridade: {chamado.prioridade}</small>
-      <br />
-
+      {/* Botão de visualização */}
       <button
-        className="btn-visualizar"
         onClick={(e) => {
           e.stopPropagation();
           e.preventDefault();
-          onVisualizarChamado(chamado);
+          handleVisualizarClick();
+        }}
+        style={{
+          marginTop: '8px',
+          backgroundColor: '#007bff',
+          color: '#fff',
+          border: 'none',
+          padding: '6px 12px',
+          borderRadius: '4px',
+          cursor: 'pointer',
+          fontSize: '14px',
         }}
       >
         Visualizar
@@ -75,48 +92,62 @@ function CardChamado({ chamado, onVisualizarChamado }) {
   );
 }
 
-export default function PainelColunas({ usuario, onVisualizarChamado }) {
+// Painel principal com lógica de movimentação
+function PainelColunas({ usuario, onVisualizarChamado }) {
   const [chamados, setChamados] = useState({});
 
   useEffect(() => {
-    fetch('http://localhost:3000/api/chamados')
-      .then((res) => res.json())
-      .then((data) => {
-        if (!Array.isArray(data)) {
-          console.error('Erro: resposta inesperada da API', data);
-          return;
-        }
+    const carregarChamados = async () => {
+      try {
+        const res = await fetch('http://localhost:3000/api/chamados');
+        const data = await res.json();
 
-        const porStatus = {};
-        statusList.forEach((s) => (porStatus[s] = []));
-        data.forEach((c) => {
-          if (!c.responsavel) porStatus['Geral'].push(c);
-          else (porStatus[c.status] || []).push(c);
+        const separadoPorStatus = {};
+        statusList.forEach((status) => {
+          separadoPorStatus[status] = [];
         });
 
-        setChamados(porStatus);
-      })
-      .catch((err) => console.error('Erro na requisição de chamados:', err));
+        data.forEach((chamado) => {
+          const status = !chamado.responsavel ? 'Geral' : chamado.status;
+          if (separadoPorStatus[status]) {
+            separadoPorStatus[status].push(chamado);
+          }
+        });
+
+        setChamados(separadoPorStatus);
+        console.log('📥 Chamados carregados e organizados por status:', separadoPorStatus);
+      } catch (err) {
+        console.error('❌ Erro ao carregar chamados:', err);
+      }
+    };
+
+    carregarChamados();
   }, []);
 
   const handleDragEnd = async (event) => {
     const { active, over } = event;
-    if (!over) return;
+
+    if (!over || !active || !active.id) return;
+    if (active.id === over.id) return;
 
     const chamadoId = Number(active.id);
     const novoStatus = over.id;
 
-    const chamadoOrigem = Object.values(chamados).flat().find((c) => c.id === chamadoId);
+    const chamadoMovido = Object.values(chamados)
+      .flat()
+      .find((c) => c.id === chamadoId);
 
-    if (!chamadoOrigem || (chamadoOrigem.status === novoStatus && chamadoOrigem.responsavel === usuario)) return;
-
-    const atualizado = { ...chamados };
-    statusList.forEach(
-      (status) => (atualizado[status] = atualizado[status].filter((c) => c.id !== chamadoId))
-    );
+    if (!chamadoMovido || chamadoMovido.status === novoStatus) return;
 
     try {
-      if (chamadoOrigem.responsavel == null && novoStatus === usuario) {
+      const atualizados = { ...chamados };
+
+      // Remove o chamado da lista antiga
+      statusList.forEach((status) => {
+        atualizados[status] = atualizados[status].filter((c) => c.id !== chamadoId);
+      });
+
+      if (chamadoMovido.responsavel == null && novoStatus === usuario) {
         await fetch(`http://localhost:3000/api/chamados/${chamadoId}/atribuir`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -126,12 +157,13 @@ export default function PainelColunas({ usuario, onVisualizarChamado }) {
           }),
         });
 
-        atualizado['Aberto'].push({
-          ...chamadoOrigem,
+        atualizados['Aberto'].push({
+          ...chamadoMovido,
           responsavel: usuario,
           status: 'Aberto',
         });
-        alert(`Chamado atribuído ao(à) ${usuario} com sucesso!`);
+
+        console.log(`Chamado atribuído ao(à) ${usuario} com sucesso!`);
       } else {
         await fetch(`http://localhost:3000/api/chamados/${chamadoId}/status`, {
           method: 'PUT',
@@ -139,11 +171,15 @@ export default function PainelColunas({ usuario, onVisualizarChamado }) {
           body: JSON.stringify({ status: novoStatus }),
         });
 
-        atualizado[novoStatus].push({ ...chamadoOrigem, status: novoStatus });
-        alert(`Chamado movido para "${novoStatus}" com sucesso!`);
+        atualizados[novoStatus].push({
+          ...chamadoMovido,
+          status: novoStatus,
+        });
+
+        console.log(`Chamado movido para "${novoStatus}" com sucesso!`);
       }
 
-      setChamados(atualizado);
+      setChamados(atualizados);
     } catch (err) {
       console.error('Erro ao atualizar chamado:', err);
       alert('Erro ao mover o chamado.');
@@ -155,8 +191,12 @@ export default function PainelColunas({ usuario, onVisualizarChamado }) {
       <div style={{ display: 'flex', justifyContent: 'space-around', padding: 20 }}>
         {statusList.map((status) => (
           <ColunaStatus key={status} status={status}>
-            {chamados[status]?.map((c) => (
-              <CardChamado key={c.id} chamado={c} onVisualizarChamado={onVisualizarChamado} />
+            {chamados[status]?.map((chamado) => (
+              <CardChamado
+                key={chamado.id}
+                chamado={{ ...chamado }}
+                onVisualizarChamado={onVisualizarChamado}
+              />
             ))}
           </ColunaStatus>
         ))}
@@ -164,3 +204,5 @@ export default function PainelColunas({ usuario, onVisualizarChamado }) {
     </DndContext>
   );
 }
+
+export default PainelColunas;

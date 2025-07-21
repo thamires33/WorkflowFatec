@@ -7,16 +7,28 @@ function ChatBox() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
 
+  // Abre/fecha o chat
   const toggleChat = () => {
-    setIsOpen(!isOpen);
+    setIsOpen(prev => !prev);
   };
 
+  // Envia mensagem do usuário
   const handleSend = () => {
-    if (input.trim() !== '') {
-      setMessages([...messages, { text: input, fromUser: true }]);
+    const trimmed = input.trim();
+    if (trimmed !== '') {
+      setMessages(prev => [...prev, { text: trimmed, fromUser: true }]);
       setInput('');
-      // Aqui você pode chamar uma API, simular resposta, etc.
+
+      // Exemplo de resposta automática
+      setTimeout(() => {
+        setMessages(prev => [...prev, { text: 'Recebido! Aguardando retorno da secretaria.', fromUser: false }]);
+      }, 1000);
     }
+  };
+
+  // Enviar com Enter (opcional)
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') handleSend();
   };
 
   return (
@@ -25,8 +37,9 @@ function ChatBox() {
         <div className="chatbox">
           <div className="chatbox-header">
             <span>Chat com a Secretaria</span>
-            <button onClick={toggleChat}>X</button>
+            <button onClick={toggleChat}>×</button>
           </div>
+
           <div className="chatbox-messages">
             {messages.map((msg, index) => (
               <div
@@ -37,11 +50,13 @@ function ChatBox() {
               </div>
             ))}
           </div>
+
           <div className="chatbox-input">
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleKeyDown}
               placeholder="Digite sua mensagem..."
             />
             <button onClick={handleSend}>Enviar</button>
@@ -49,7 +64,7 @@ function ChatBox() {
         </div>
       )}
 
-      <button className="chat-toggle" onClick={toggleChat}>
+      <button className="chat-toggle" onClick={toggleChat} title="Abrir/Fechar Chat">
         💬
       </button>
     </div>

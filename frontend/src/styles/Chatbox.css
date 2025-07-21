@@ -1,10 +1,12 @@
+/* Posiciona o botão e o chat no canto inferior direito */
 .chatbox-container {
   position: fixed;
   bottom: 20px;
   right: 20px;
-  z-index: 1000;
+  z-index: 10000; /* acima da maioria dos elementos, abaixo do modal (9999) */
 }
 
+/* Botão para abrir/fechar o chat */
 .chat-toggle {
   background-color: #2c3e50;
   color: white;
@@ -14,69 +16,112 @@
   height: 60px;
   font-size: 24px;
   cursor: pointer;
-  box-shadow: 0 0 10px rgba(0,0,0,0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  transition: background-color 0.3s ease;
 }
 
+.chat-toggle:hover {
+  background-color: #1a252f;
+}
+
+/* Janela do chat */
 .chatbox {
-  width: 300px;
-  height: 400px;
-  background: white;
+  width: 320px;
+  height: 420px;
+  background: #ffffff;
   border-radius: 10px;
   overflow: hidden;
-  box-shadow: 0 0 15px rgba(0,0,0,0.3);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
   display: flex;
   flex-direction: column;
+  animation: fadeInUp 0.3s ease-out;
+  z-index: auto; /* impede competição com modais */
 }
 
+/* Cabeçalho da janela */
 .chatbox-header {
   background: #2c3e50;
   color: white;
-  padding: 10px;
+  padding: 10px 15px;
   display: flex;
   justify-content: space-between;
+  align-items: center;
+  font-weight: bold;
 }
 
+/* Área de mensagens */
 .chatbox-messages {
   flex: 1;
   padding: 10px;
   overflow-y: auto;
-  background: #f2f2f2;
+  background: #f5f7fa;
+  display: flex;
+  flex-direction: column;
 }
 
+/* Bolhas de mensagem */
 .message {
   margin-bottom: 10px;
-  padding: 8px;
-  border-radius: 6px;
-  max-width: 80%;
+  padding: 8px 12px;
+  border-radius: 8px;
+  max-width: 75%;
+  line-height: 1.4;
+  word-wrap: break-word;
 }
 
 .message.user {
   background: #3498db;
   color: white;
   align-self: flex-end;
+  border-bottom-right-radius: 0;
 }
 
 .message.bot {
   background: #ecf0f1;
+  color: #333;
   align-self: flex-start;
+  border-bottom-left-radius: 0;
 }
 
+/* Área de digitação */
 .chatbox-input {
   display: flex;
   border-top: 1px solid #ccc;
+  background: #fff;
 }
 
 .chatbox-input input {
   flex: 1;
-  padding: 10px;
+  padding: 12px;
   border: none;
   outline: none;
+  font-size: 14px;
+  border-top-left-radius: 10px;
 }
 
 .chatbox-input button {
   background: #3498db;
   color: white;
   border: none;
-  padding: 10px 15px;
+  padding: 0 18px;
+  font-weight: bold;
+  font-size: 14px;
   cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.chatbox-input button:hover {
+  background-color: #2980b9;
+}
+
+/* Animação opcional */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
