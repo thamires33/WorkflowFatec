@@ -214,21 +214,16 @@ exports.listarPorStatus = async (req, res) => {
   }
 };
 
-<<<<<<< HEAD
-const Chamado = require('../models/Chamado.temp');
+// =================== OUTRAS FUNÇÕES OPCIONAIS ===================
+// Aqui você pode adicionar outras funções como buscarPorId, atualizar, etc., se desejar
 
-
-=======
+// =================== EXPORTAÇÕES ===================
 module.exports = {
-  criar,
   listar,
-  listarTodos,
-  buscarPorId,
+  criar,
+  responderChamado,
+  encaminharChamado,
+  listarMensagens,
   listarPorAluno,
-  listarPorStatus,
-  atualizar,
-  atualizarStatus,
-  atribuirChamado,
-  deletar
+  listarPorStatus
 };
->>>>>>> rafront

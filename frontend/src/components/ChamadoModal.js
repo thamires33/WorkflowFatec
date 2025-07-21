@@ -21,7 +21,8 @@ const ChamadoModal = ({ isOpen, onClose }) => {
       return;
     }
 
-    const protocolo = 'CH-' + Math.floor(Math.random() * 1000000);
+    const protocolo = 'CH-' + Date.now(); // mais seguro e único
+
 
     const formData = new FormData();
     formData.append('protocolo', protocolo);
