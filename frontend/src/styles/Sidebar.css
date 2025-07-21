@@ -64,7 +64,9 @@
   flex-direction: column;
   padding: 40px;
   background-color: #f9fafb;
-  overflow-y: auto;
+
+  /* ⚠️ Deixe comentado por padrão, evite interferência no modal */
+  /* overflow-y: auto; */
 }
 
 /* Título principal */
@@ -96,10 +98,10 @@
   background-color: #1d4ed8;
 }
 
-/* Opcional: ajuste o ChatBox para não sobrepor elementos */
+/* Caixa do chat flutuante */
 .chatbox {
   position: fixed;
   bottom: 20px;
   right: 20px;
-  z-index: 10;
+  z-index: 100; /* 🔒 reforçado para evitar conflitos com modais */
 }

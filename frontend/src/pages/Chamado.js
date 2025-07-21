@@ -1,43 +1,33 @@
 import React, { useEffect, useState } from 'react';
 import Sidebar from '../components/Sidebar';
 import ChatBox from '../components/ChatBox';
+import { useModal } from '../components/ModalService';
+
 import '../styles/Sidebar.css';
 import '../styles/Chamado.css';
 import '../styles/Chatbox.css';
 
 function Chamado() {
   const [chamados, setChamados] = useState([]);
+  const { openModal } = useModal();
 
-  // 1. Buscar chamados da API ao carregar
+  // Carregar chamados ao iniciar
   useEffect(() => {
-    buscarChamados();
+    const aluno_ra = localStorage.getItem('aluno_ra');
+    if (!aluno_ra) {
+      console.error('RA do aluno não encontrado no localStorage.');
+      return;
+    }
+
+    fetch(`http://localhost:3001/api/chamados/aluno?ra=${aluno_ra}`)
+      .then(res => res.json())
+      .then(data => setChamados(data))
+      .catch(err => console.error('Erro ao buscar chamados do aluno:', err));
   }, []);
 
-  useEffect(() => {
-  const aluno_ra = localStorage.getItem('aluno_ra');
-  fetch(`http://localhost:3001/api/chamados/aluno?ra=${aluno_ra}`)
-    .then(res => res.json())
-    .then(data => setChamados(data))
-    .catch(err => console.error('Erro ao buscar chamados do aluno:', err));
-}, []);
-
-
-  const buscarChamados = async () => {
-    try {
-      const resposta = await fetch('http://localhost:3000/api/chamados');
-      const dados = await resposta.json();
-      setChamados(dados);
-    } catch (erro) {
-      alert('Erro ao buscar chamados.');
-      console.error(erro);
-    }
-  };
-
-  // 2. Deletar chamado por ID
   const deletarChamado = async (id) => {
-    const confirmacao = window.confirm(`Tem certeza que deseja deletar o chamado ${id}?`);
-
-    if (!confirmacao) return;
+    const confirmar = window.confirm(`Tem certeza que deseja deletar o chamado ${id}?`);
+    if (!confirmar) return;
 
     try {
       const resposta = await fetch(`http://localhost:3000/api/chamados/${id}`, {
@@ -48,13 +38,40 @@ function Chamado() {
 
       if (resposta.ok) {
         alert(`✅ ${resultado.mensagem}`);
-        buscarChamados(); // Atualiza lista após deletar
+        // Atualiza a lista
+        const aluno_ra = localStorage.getItem('aluno_ra');
+        const res = await fetch(`http://localhost:3001/api/chamados/aluno?ra=${aluno_ra}`);
+        const data = await res.json();
+        setChamados(data);
       } else {
         alert(`❌ Erro: ${resultado.erro}`);
       }
     } catch (erro) {
       console.error(erro);
-      alert('❌ Erro ao deletar chamado.');
+      alert('Erro ao deletar chamado.');
+    }
+  };
+
+  const handleResponderChamado = async (id, formData) => {
+    try {
+      const response = await fetch(`http://localhost:3000/api/chamados/${id}/responder`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (response.ok) {
+        alert('Resposta enviada com sucesso!');
+        // Atualiza a lista após resposta
+        const aluno_ra = localStorage.getItem('aluno_ra');
+        const res = await fetch(`http://localhost:3001/api/chamados/aluno?ra=${aluno_ra}`);
+        const data = await res.json();
+        setChamados(data);
+      } else {
+        alert('Erro ao enviar resposta.');
+      }
+    } catch (err) {
+      console.error(err);
+      alert('Erro ao conectar com o servidor.');
     }
   };
 
@@ -82,7 +99,7 @@ function Chamado() {
                 <td>{new Date(ch.data_criacao).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</td>
                 <td>{ch.tipo}</td>
                 <td>
-                  <button onClick={() => alert(`Chamado ${ch.protocolo}`)}>Visualizar</button>
+                  <button onClick={() => openModal(ch, handleResponderChamado)}>Visualizar</button>
                   <button onClick={() => deletarChamado(ch.id)} style={{ marginLeft: '8px', color: 'red' }}>🗑️</button>
                 </td>
               </tr>

@@ -12,7 +12,7 @@ function HomeAluno() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    const ra = localStorage.getItem('ra');
+    const ra = localStorage.getItem('ra'); // ← corrigido aqui
     const nome = localStorage.getItem('alunoNome');
 
     if (!ra) {
@@ -27,8 +27,7 @@ function HomeAluno() {
 
   return (
     <div className="home-wrapper">
-      <Sidebar />
-
+      <Sidebar nomeUsuario={nomeAluno}/>
       <div className="home-container">
         <main className="home-content">
           <h1>Bem-vindo(a), {nomeAluno}!</h1>
@@ -41,7 +40,7 @@ function HomeAluno() {
         <ChatBox />
       </div>
 
-      <ChamadoModal isOpen={modalAberta} onClose={fecharModal} />
+      {modalAberta && <ChamadoModal isOpen={modalAberta} onClose={fecharModal} />}
     </div>
   );
 }

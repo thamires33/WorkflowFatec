@@ -1,49 +1,94 @@
+/* Evita scroll no fundo ao abrir o modal */
+body.modal-open {
+  overflow: hidden;
+}
+
+/* Fundo escurecido por trás do modal */
 .modal-overlay {
   position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
-  background: rgba(0, 0, 0, 0.4);
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 10;
+  z-index: 9999; /* Garantir que fique acima de tudo */
 }
 
-.modal-content {
-  background: white;
-  padding: 2rem;
+/* Caixa do modal */
+.modal {
+  background-color: #fff;
+  padding: 30px;
   border-radius: 10px;
-  width: 400px;
+  width: 500px;
   max-width: 90%;
+  max-height: 80vh;
+  overflow-y: auto;
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.4);
+  z-index: 10000; /* Extra para reforçar */
+  position: relative;
 }
 
-.modal-content h2 {
+/* Estilo geral dos elementos */
+.modal * {
+  box-sizing: border-box;
+}
+
+.modal h2 {
   margin-top: 0;
+  margin-bottom: 20px;
 }
 
-.modal-content label {
-  display: block;
-  margin-top: 1rem;
-}
-
-.modal-content select,
-.modal-content textarea,
-.modal-content input {
+/* Inputs e textarea */
+.modal textarea,
+.modal input[type="file"] {
   width: 100%;
-  margin-top: 0.3rem;
-  padding: 0.5rem;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  padding: 8px;
   border-radius: 5px;
   border: 1px solid #ccc;
+  font-size: 1rem;
 }
 
+/* Área de botões no final do modal */
 .modal-buttons {
   display: flex;
-  justify-content: flex-end;
-  margin-top: 1rem;
+  justify-content: space-between;
+  margin-top: 20px;
 }
 
 .modal-buttons button {
-  margin-left: 10px;
+  flex: 1;
+  margin: 0 5px;
+  padding: 10px 20px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+}
+
+.modal-buttons button:hover {
+  background-color: #0056b3;
+}
+
+/* Responsivo para celular */
+@media (max-width: 600px) {
+  .modal {
+    width: 90%;
+    padding: 20px;
+  }
+}
+
+/* Foco nos inputs */
+.modal textarea:focus,
+.modal input[type="file"]:focus,
+.modal-buttons button:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 3px rgba(0, 123, 255, 0.5);
 }

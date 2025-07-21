@@ -1,111 +1,196 @@
 import React, { useEffect, useState } from 'react';
-import { DndContext, closestCenter, useDroppable, useDraggable } from '@dnd-kit/core';
+import {
+  DndContext,
+  closestCenter,
+  useDroppable,
+  useDraggable,
+} from '@dnd-kit/core';
 
 const statusList = ['Geral', 'Aberto', 'Em Andamento', 'Atendido', 'Encerrado'];
 
+// Componente de Coluna (Droppable)
 function ColunaStatus({ status, children }) {
   const { setNodeRef } = useDroppable({ id: status });
 
   return (
-    <div ref={setNodeRef} style={{
-      flex: 1,
-      minHeight: 400,
-      border: '2px dashed #ccc',
-      margin: '0 10px',
-      padding: 10,
-      borderRadius: '6px',
-      backgroundColor: '#f9f9f9'
-    }}>
+    <div
+      ref={setNodeRef}
+      style={{
+        flex: 1,
+        minHeight: 400,
+        border: '2px dashed #ccc',
+        margin: '0 10px',
+        padding: 10,
+        borderRadius: '6px',
+        backgroundColor: '#f9f9f9',
+      }}
+    >
       <h3 style={{ textAlign: 'center' }}>{status}</h3>
       {children}
     </div>
   );
 }
 
+// Cartão individual do chamado (Draggable)
 function CardChamado({ chamado, onVisualizarChamado }) {
-  const { attributes, listeners, setNodeRef, transform } = useDraggable({ id: chamado.id.toString() });
+  const { attributes, listeners, setNodeRef, transform } = useDraggable({
+    id: chamado.id.toString(),
+  });
 
   const style = {
-    transform: transform ? `translate(${transform.x}px, ${transform.y}px)` : '',
+    transform: transform
+      ? `translate(${transform.x}px, ${transform.y}px)`
+      : '',
     padding: '10px',
     marginBottom: '10px',
-    background: '#fff',
     border: '1px solid #ccc',
-    borderRadius: '5px',
-    boxShadow: '1px 1px 4px rgba(0,0,0,0.1)'
+    borderRadius: '6px',
+    backgroundColor: '#fff',
+    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+  };
+
+  const handleVisualizarClick = () => {
+    console.log('🔍 Cliquei no botão Visualizar:', chamado);
+    onVisualizarChamado({ ...chamado });
   };
 
   return (
-    <div ref={setNodeRef} {...attributes} {...listeners} style={style}>
-      <strong>{chamado.protocolo}</strong><br />
-      {chamado.tipo}<br />
-      <small>Prioridade: {chamado.prioridade}</small><br />
-      <button onClick={() => onVisualizarChamado(chamado)} style={{ marginTop: '5px' }}>
+    <div
+      ref={setNodeRef}
+      {...attributes}
+      className="card-chamado"
+      style={style}
+    >
+      {/* Área de arrasto */}
+      <div {...listeners} style={{ cursor: 'grab' }}>
+        <strong>{chamado.protocolo}</strong><br />
+        {chamado.tipo}<br />
+        <small>Prioridade: {chamado.prioridade}</small>
+      </div>
+
+      {/* Botão de visualização (fora do listeners) */}
+      <button
+        onClick={(e) => {
+          e.stopPropagation(); // evita conflitos com drag
+          e.preventDefault();
+          handleVisualizarClick();
+        }}
+        style={{
+          marginTop: '8px',
+          backgroundColor: '#007bff',
+          color: '#fff',
+          border: 'none',
+          padding: '6px 12px',
+          borderRadius: '4px',
+          cursor: 'pointer',
+          fontSize: '14px',
+        }}
+      >
         Visualizar
       </button>
     </div>
   );
 }
 
-export default function PainelColunas({ usuario, onVisualizarChamado }) {
+
+// Painel principal com lógica de movimentação
+function PainelColunas({ usuario, onVisualizarChamado }) {
   const [chamados, setChamados] = useState({});
 
   useEffect(() => {
-    fetch('http://localhost:3000/chamados')
-      .then(res => res.json())
-      .then(data => {
+    const carregarChamados = async () => {
+      try {
+        const res = await fetch('http://localhost:3000/api/chamados');
+        const data = await res.json();
+
         const separadoPorStatus = {};
-        statusList.forEach(status => separadoPorStatus[status] = []);
-        data.forEach(c => {
-          if (!c.responsavel) {
-            separadoPorStatus['Geral'].push(c);
-          } else {
-            separadoPorStatus[c.status]?.push(c);
+        statusList.forEach((status) => {
+          separadoPorStatus[status] = [];
+        });
+
+        data.forEach((chamado) => {
+          const status = !chamado.responsavel ? 'Geral' : chamado.status;
+          if (separadoPorStatus[status]) {
+            separadoPorStatus[status].push(chamado);
           }
         });
+
         setChamados(separadoPorStatus);
-      });
+        console.log('📥 Chamados carregados e organizados por status:', separadoPorStatus);
+      } catch (err) {
+        console.error('❌ Erro ao carregar chamados:', err);
+      }
+    };
+
+    carregarChamados();
   }, []);
 
   const handleDragEnd = async (event) => {
     const { active, over } = event;
-    if (!over) return;
+
+    // Ignora interações inválidas
+    if (!over || !active || !active.id) return;
+    if (active.id === over.id) return;
 
     const chamadoId = parseInt(active.id);
     const novoStatus = over.id;
 
-    const chamadoMovido = Object.values(chamados).flat().find(c => c.id === chamadoId);
-    if (!chamadoMovido || (chamadoMovido.status === novoStatus && chamadoMovido.responsavel === usuario)) return;
+    const chamadoMovido = Object.values(chamados)
+      .flat()
+      .find((c) => c.id === chamadoId);
+
+    if (!chamadoMovido || chamadoMovido.status === novoStatus) return;
 
     try {
       const atualizados = { ...chamados };
-      statusList.forEach(status => {
-        atualizados[status] = atualizados[status].filter(c => c.id !== chamadoId);
+
+      // Remove o chamado de onde ele estava
+      statusList.forEach((status) => {
+        atualizados[status] = atualizados[status].filter(
+          (c) => c.id !== chamadoId
+        );
       });
 
+      // Atribuição inicial
       if (chamadoMovido.responsavel == null && novoStatus === usuario) {
         const body = {
           responsavel: usuario,
-          data_movimentacao: new Date().toISOString()
+          data_movimentacao: new Date().toISOString(),
         };
 
-        await fetch(`http://localhost:3000/chamados/${chamadoId}/atribuir`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body)
+        await fetch(
+          `http://localhost:3000/api/chamados/${chamadoId}/atribuir`,
+          {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(body),
+          }
+        );
+
+        atualizados['Aberto'].push({
+          ...chamadoMovido,
+          responsavel: usuario,
+          status: 'Aberto',
         });
 
-        atualizados['Aberto'].push({ ...chamadoMovido, responsavel: usuario, status: 'Aberto' });
-        alert(`Chamado atribuído ao(a) ${usuario} com sucesso!`);
+        console.log(`Chamado atribuído ao(a) ${usuario} com sucesso!`);
       } else {
-        await fetch(`http://localhost:3000/chamados/${chamadoId}/status`, {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ status: novoStatus })
+        // Mudança de status
+        await fetch(
+          `http://localhost:3000/api/chamados/${chamadoId}/status`,
+          {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ status: novoStatus }),
+          }
+        );
+
+        atualizados[novoStatus].push({
+          ...chamadoMovido,
+          status: novoStatus,
         });
 
-        atualizados[novoStatus].push({ ...chamadoMovido, status: novoStatus });
-        alert(`Chamado movido para "${novoStatus}" com sucesso!`);
+        console.log(`Chamado movido para "${novoStatus}" com sucesso!`);
       }
 
       setChamados(atualizados);
@@ -117,11 +202,21 @@ export default function PainelColunas({ usuario, onVisualizarChamado }) {
 
   return (
     <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-      <div style={{ display: 'flex', justifyContent: 'space-around', padding: 20 }}>
-        {statusList.map(status => (
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-around',
+          padding: 20,
+        }}
+      >
+        {statusList.map((status) => (
           <ColunaStatus key={status} status={status}>
-            {chamados[status]?.map(c => (
-              <CardChamado key={c.id} chamado={c} onVisualizarChamado={onVisualizarChamado} />
+            {chamados[status]?.map((chamado) => (
+              <CardChamado
+                key={chamado.id}
+                chamado={{ ...chamado }}
+                onVisualizarChamado={onVisualizarChamado}
+              />
             ))}
           </ColunaStatus>
         ))}
@@ -129,3 +224,5 @@ export default function PainelColunas({ usuario, onVisualizarChamado }) {
     </DndContext>
   );
 }
+
+export default PainelColunas;

@@ -5,11 +5,13 @@ import { toast } from 'react-toastify';
 const ChamadoModal = ({ isOpen, onClose }) => {
   const [tipoChamado, setTipoChamado] = useState('');
   const [descricao, setDescricao] = useState('');
-  //const [anexo, setAnexo] = useState(null);
+  const [anexo, setAnexo] = useState(null);
 
-  const handleSubmit = async () => {
-    const id_aluno = localStorage.getItem('idAluno');
-    if (!id_aluno) {
+  const handleSubmit = async (e) => {
+    e?.preventDefault?.();
+
+    const aluno_ra = localStorage.getItem('ra');
+    if (!aluno_ra) {
       toast.error('Usuário não autenticado');
       return;
     }
@@ -21,18 +23,17 @@ const ChamadoModal = ({ isOpen, onClose }) => {
 
     const protocolo = 'CH-' + Math.floor(Math.random() * 1000000);
 
-    const chamado = {
-      protocolo,
-      tipo: tipoChamado,
-      descricao,
-      id_aluno
-    };
+    const formData = new FormData();
+    formData.append('protocolo', protocolo);
+    formData.append('tipo', tipoChamado);
+    formData.append('descricao', descricao);
+    formData.append('aluno_ra', aluno_ra); // deve ser 'aluno_ra' mesmo
+    if (anexo) formData.append('anexo', anexo);
 
     try {
-      const response = await fetch('http://localhost:3000/chamados', {
+      const response = await fetch('http://localhost:3000/api/chamados', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(chamado)
+        body: formData,
       });
 
       const data = await response.json();
@@ -52,36 +53,43 @@ const ChamadoModal = ({ isOpen, onClose }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="modal-overlay">
-      <div className="modal-content">
-        <h2>Abrir Chamado</h2>
+   <div className="modal-overlay">
+  <div className="modal">
+    <h2>Abrir Chamado</h2>
 
-        <label>Tipo de chamado:</label>
-        <select value={tipoChamado} onChange={(e) => setTipoChamado(e.target.value)}>
-          <option value="">Selecione</option>
-          <option value="Urgencia de Diploma">Urgência de Diploma</option>
-          <option value="Historico Escolar">Histórico Escolar</option>
-          <option value="Atestado Médico">Atestado Médico</option>
-          <option value="Meus Documentos">Meus Documentos</option>
-          <option value="Outros">Outros</option>
-        </select>
-
-        <label>Descrição:</label>
-        <textarea
-          value={descricao}
-          onChange={(e) => setDescricao(e.target.value)}
-          placeholder="Descreva seu chamado..."
-        />
-
-        <label>Anexo:</label>
-        {/*<input type="file" onChange={(e) => setAnexo(e.target.files[0])} />*/}
-
-        <div className="modal-buttons">
-          <button onClick={onClose}>Cancelar</button>
-          <button onClick={handleSubmit}>Abrir Chamado</button>
-        </div>
-      </div>
+    <div className="form-group">
+      <label>Tipo de chamado:</label>
+      <select value={tipoChamado} onChange={(e) => setTipoChamado(e.target.value)}>
+        <option value="">Selecione</option>
+        <option value="Urgência de Diploma">Urgência de Diploma</option>
+        <option value="Histórico Escolar">Histórico Escolar</option>
+        <option value="Atestado Médico">Atestado Médico</option>
+        <option value="Meus Documentos">Meus Documentos</option>
+        <option value="Outros">Outros</option>
+      </select>
     </div>
+
+    <div className="form-group">
+      <label>Descrição:</label>
+      <textarea
+        value={descricao}
+        onChange={(e) => setDescricao(e.target.value)}
+        placeholder="Descreva seu chamado..."
+      />
+    </div>
+
+    <div className="form-group">
+      <label>Anexo:</label>
+      <input type="file" onChange={(e) => setAnexo(e.target.files[0])} />
+    </div>
+
+    <div className="modal-buttons">
+      <button onClick={onClose}>Cancelar</button>
+      <button onClick={handleSubmit}>Abrir Chamado</button>
+    </div>
+  </div>
+</div>
+ 
   );
 };
 

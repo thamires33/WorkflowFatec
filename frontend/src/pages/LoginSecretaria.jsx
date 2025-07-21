@@ -1,3 +1,4 @@
+// src/pages/LoginSecretaria.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
@@ -12,10 +13,10 @@ function LoginSecretaria() {
     e.preventDefault();
 
     try {
-      const response = await fetch('http://localhost:3000/login-secretaria', {
+      const response = await fetch('http://localhost:3000/api/auth/login-secretaria', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ra: email, senha }) // 'ra' sendo usado como email
+        body: JSON.stringify({ email, senha })
       });
 
       const data = await response.json();

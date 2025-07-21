@@ -22,17 +22,22 @@ function Sidebar() {
 
   const handleLogout = () => {
     localStorage.clear();
+
+    // Redireciona para a rota correta após logout
     if (location.pathname.toLowerCase().includes('homealuno')) {
-      navigate('/LoginAluno');
+      navigate('/LoginAluno'); // ✅ Certo
     } else {
-      navigate('/LoginSecretaria');
+      navigate('/LoginSecretaria'); // ⚠️ Cuidado com case-sensitive!
     }
   };
 
   return (
     <div className="sidebar">
       <h2>Workflow Fatec</h2>
+
+      {/* Exibe nome do usuário se existir */}
       {nomeUsuario && <p className="sidebar-nome">👤 {nomeUsuario}</p>}
+
       <button onClick={handleLogout}>Sair</button>
     </div>
   );

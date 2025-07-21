@@ -1,89 +1,83 @@
-import React, { useState } from 'react';
+// src/components/VisualizarChamadoModalSec.js
+import React, { useEffect, useState } from 'react';
 import '../styles/ChamadoModal.css';
 
-function VisualizarChamadoSec({ chamado, onClose, onResponder, onEncaminhar, onEncerrar }) {
-  const [mensagem, setMensagem] = useState('');
-  const [emailEncaminhamento, setEmailEncaminhamento] = useState('');
-  const [modo, setModo] = useState(null); // 'responder' ou 'encaminhar'
-  const [anexo, setAnexo] = useState(null);
+function VisualizarChamadoModalSec({ chamado, onClose, onResponder }) {
+  const [resposta, setResposta] = useState('');
+  const [arquivo, setArquivo] = useState(null);
 
-  const handleResponder = () => {
-    if (mensagem.trim() === '') return alert('Digite uma mensagem para responder.');
-    onResponder(chamado.id, mensagem);
-    setMensagem('');
-    setModo(null);
-  };
+  useEffect(() => {
+    if (chamado) {
+      document.body.classList.add('modal-open');
+    }
+    return () => {
+      document.body.classList.remove('modal-open');
+    };
+  }, [chamado]);
 
-  const handleEncaminhar = () => {
-    if (emailEncaminhamento.trim() === '') return alert('Digite o email para encaminhamento.');
-    onEncaminhar(chamado.id, emailEncaminhamento, mensagem);
-    setEmailEncaminhamento('');
-    setMensagem('');
-    setModo(null);
-  };
+  const handleResponderClick = () => {
+    if (!resposta.trim()) {
+      alert('Digite uma resposta para o aluno.');
+      return;
+    }
 
-  const handleEncerrar = () => {
-    onEncerrar(chamado.id);
-  };
+    const formData = new FormData();
+    formData.append('resposta', resposta);
+    formData.append('mensagem', resposta); // ⚠️ campo esperado no backend
+    if (arquivo) {
+      formData.append('arquivo', arquivo);
+    }
 
-  const handleAnexoChange = (e) => {
-    setAnexo(e.target.files[0]);
+    onResponder(chamado.id, formData);
+    onClose();
   };
 
   if (!chamado) return null;
 
+  console.log('🟩 Modal está prestes a ser exibido para:', chamado);
+
   return (
     <div className="modal-overlay">
-      <div className="modal-content">
-        <h2>Chamado #{chamado.protocolo} - {chamado.tipo}</h2>
-        <p><strong>Data de Abertura:</strong> {chamado.data}</p>
-        <p><strong>Status:</strong> {chamado.status}</p>
+      <div className="modal">
+        <h2>Detalhes do Chamado</h2>
+
+        <p><strong>Tipo:</strong> {chamado.tipo}</p>
         <p><strong>Descrição:</strong> {chamado.descricao}</p>
 
-        {chamado.anexoUrl && (
+        {/* Renderiza condicionalmente o nome do aluno, se existir */}
+        {chamado.nome_aluno && (
+          <p><strong>Aluno:</strong> {chamado.nome_aluno}</p>
+        )}
+
+        {/* Renderiza condicionalmente o anexo, se existir */}
+        {chamado.anexo && (
           <p>
             <strong>Anexo:</strong>{' '}
-            <a href={chamado.anexoUrl} target="_blank" rel="noopener noreferrer">Visualizar Anexo</a>
+            <a
+              href={`http://localhost:3000/uploads/${chamado.anexo}`}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              Visualizar
+            </a>
           </p>
         )}
 
-        <div className="botoes-modal">
-          <button onClick={() => setModo('responder')}>Responder</button>
-          <button onClick={() => setModo('encaminhar')}>Encaminhar</button>
-          <button onClick={handleEncerrar}>Encerrar</button>
-          <button onClick={onClose}>Fechar</button>
+        <textarea
+          placeholder="Digite a resposta para o aluno..."
+          value={resposta}
+          onChange={(e) => setResposta(e.target.value)}
+        />
+
+        <input type="file" onChange={(e) => setArquivo(e.target.files[0])} />
+
+        <div className="modal-buttons">
+          <button type="button" onClick={onClose}>Cancelar</button>
+          <button type="button" onClick={handleResponderClick}>Responder</button>
         </div>
-
-        {modo && (
-          <div className="form-resposta">
-            {modo === 'encaminhar' && (
-              <input
-                type="email"
-                placeholder="Email para encaminhar"
-                value={emailEncaminhamento}
-                onChange={(e) => setEmailEncaminhamento(e.target.value)}
-              />
-            )}
-
-            <textarea
-              placeholder="Digite a mensagem"
-              value={mensagem}
-              onChange={(e) => setMensagem(e.target.value)}
-            />
-
-            <input
-              type="file"
-              onChange={handleAnexoChange}
-            />
-
-            <button onClick={modo === 'responder' ? handleResponder : handleEncaminhar}>
-              {modo === 'responder' ? 'Enviar Resposta' : 'Enviar Encaminhamento'}
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );
 }
 
-export default VisualizarChamadoSec;
+export default VisualizarChamadoModalSec;
