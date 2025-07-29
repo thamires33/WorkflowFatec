@@ -1,16 +1,19 @@
-import { Link } from 'react-router-dom';
+import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import '../styles/Sidebar.css';
 
 function Sidebar() {
+  const navigate = useNavigate();
+
   return (
-    <div className="sidebar">
-      <h2>Workflow</h2>
-      <nav>
-        <Link to="/home">Início</Link>
-        <Link to="/chamado">Meus Chamados</Link>
-        <Link to="/mensagem">Mensagem</Link>
-        <Link to="/">Sair</Link>
+    <aside className="sidebar">
+      <h2 className="logo">Workflow Fatec</h2>
+      <nav className="menu">
+        <button className="menu-btn" onClick={() => navigate('/Home')}>Início</button>
+        <button className="menu-btn" onClick={() => navigate('/Chamado')}>Meus Chamados</button>
+        <button className="menu-btn sair-btn" onClick={() => navigate('/')}>Sair</button>
       </nav>
-    </div>
+    </aside>
   );
 }
 
